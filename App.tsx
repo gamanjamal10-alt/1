@@ -22,6 +22,21 @@ const App: React.FC = () => {
     document.documentElement.lang = language === Language.AR ? 'ar' : 'en';
     document.documentElement.dir = language === Language.AR ? 'rtl' : 'ltr';
   }, [language]);
+  
+  useEffect(() => {
+    const root = document.documentElement;
+    if (currentStore?.themeColors) {
+      root.style.setProperty('--color-primary', currentStore.themeColors.primary);
+      root.style.setProperty('--color-secondary', currentStore.themeColors.secondary);
+      root.style.setProperty('--color-accent', currentStore.themeColors.accent);
+    } else {
+      // Revert to default if no store or theme is selected
+      root.style.setProperty('--color-primary', '#004e92');
+      root.style.setProperty('--color-secondary', '#f4e9d2');
+      root.style.setProperty('--color-accent', '#6da34d');
+    }
+  }, [currentStore]);
+
 
   const renderDashboard = () => {
     if (!currentStore) return null;

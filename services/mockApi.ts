@@ -56,6 +56,7 @@ let stores: Store[] = [
         locationGps: { lat: 33.8935, lng: -5.5473 },
         profilePhoto: 'https://picsum.photos/seed/farmer1/200',
         whatsAppLink: 'https://wa.me/212612345678',
+        themeColors: { primary: '#004e92', secondary: '#f4e9d2', accent: '#6da34d' },
     },
     {
         storeId: 'store2',
@@ -69,6 +70,7 @@ let stores: Store[] = [
         locationGps: { lat: 33.5731, lng: -7.5898 },
         profilePhoto: 'https://picsum.photos/seed/wholesaler1/200',
         whatsAppLink: 'https://wa.me/212623456789',
+        themeColors: { primary: '#004e92', secondary: '#f4e9d2', accent: '#6da34d' },
     },
     {
         storeId: 'store3',
@@ -82,6 +84,7 @@ let stores: Store[] = [
         locationGps: { lat: 34.0209, lng: -6.8417 },
         profilePhoto: 'https://picsum.photos/seed/retailer1/200',
         whatsAppLink: 'https://wa.me/212634567890',
+        themeColors: { primary: '#004e92', secondary: '#f4e9d2', accent: '#6da34d' },
     },
     {
         storeId: 'store4',
@@ -94,6 +97,7 @@ let stores: Store[] = [
         locationGps: { lat: 35.884, lng: -5.526 },
         profilePhoto: 'https://picsum.photos/seed/transport1/200',
         whatsAppLink: 'https://wa.me/212645678901',
+        themeColors: { primary: '#004e92', secondary: '#f4e9d2', accent: '#6da34d' },
     },
      {
         storeId: 'adminstore',
@@ -106,6 +110,7 @@ let stores: Store[] = [
         locationGps: { lat: 33.5731, lng: -7.5898 },
         profilePhoto: 'https://picsum.photos/seed/admin1/200',
         whatsAppLink: 'https://wa.me/212600000000',
+        themeColors: { primary: '#004e92', secondary: '#f4e9d2', accent: '#6da34d' },
     },
 ]
 
@@ -230,6 +235,17 @@ export const mockApi = {
     });
     return Promise.resolve(updatedUser);
   },
+  deleteUser: async (userId: string): Promise<boolean> => {
+      const initialLength = users.length;
+      const storesToDelete = stores.filter(s => s.userId === userId).map(s => s.storeId);
+      
+      for (const storeId of storesToDelete) {
+          await mockApi.deleteStore(storeId);
+      }
+      
+      users = users.filter(u => u.userId !== userId);
+      return Promise.resolve(users.length < initialLength);
+  },
   
   // STORE
   getStores: async (): Promise<Store[]> => Promise.resolve(stores),
@@ -246,6 +262,11 @@ export const mockApi = {
           locationGps: { lat: 0, lng: 0 },
           profilePhoto: `https://picsum.photos/seed/store${Date.now()}/200`,
           whatsAppLink: `https://wa.me/${user.phone.replace(/\D/g, '')}`,
+          themeColors: {
+            primary: '#004e92',
+            secondary: '#f4e9d2',
+            accent: '#6da34d',
+          },
       };
       stores = [...stores, newStore];
       
@@ -259,6 +280,25 @@ export const mockApi = {
       };
       subscriptions = [...subscriptions, newSubscription];
       return Promise.resolve(newStore);
+  },
+  updateStore: async (storeId: string, updatedData: Partial<Store>): Promise<Store | undefined> => {
+    let updatedStore: Store | undefined;
+    stores = stores.map(s => {
+      if (s.storeId === storeId) {
+        updatedStore = { ...s, ...updatedData };
+        return updatedStore;
+      }
+      return s;
+    });
+    return Promise.resolve(updatedStore);
+  },
+  deleteStore: async (storeId: string): Promise<boolean> => {
+    const initialLength = stores.length;
+    stores = stores.filter(s => s.storeId !== storeId);
+    subscriptions = subscriptions.filter(sub => sub.storeId !== storeId);
+    products = products.filter(p => p.storeId !== storeId);
+    orders = orders.filter(o => o.sellerStoreId !== storeId || o.buyerStoreId !== storeId);
+    return Promise.resolve(stores.length < initialLength);
   },
 
   // PRODUCT

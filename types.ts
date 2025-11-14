@@ -77,6 +77,11 @@ export interface Store {
     locationGps: { lat: number; lng: number };
     profilePhoto: string;
     whatsAppLink: string;
+    themeColors?: {
+        primary: string;
+        secondary: string;
+        accent: string;
+    };
     // This will be added in context, not DB
     subscriptionStatus?: SubscriptionStatus; 
 }

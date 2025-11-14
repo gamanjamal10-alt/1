@@ -8,9 +8,7 @@ interface AppContextType {
   currentUser: User | null;
   currentStore: Store | null;
   userStores: Store[];
-  // FIX: Added users to the context to be available across the app.
   users: User[];
-  // FIX: Added all stores to the context for the admin dashboard.
   stores: Store[];
   products: Product[];
   orders: Order[];
@@ -26,7 +24,6 @@ interface AppContextType {
   unselectStore: () => void;
   
   createStore: (storeData: Omit<Store, 'storeId' | 'createdAt' | 'status' | 'address' | 'locationGps' | 'profilePhoto' | 'whatsAppLink'>) => Promise<Store>;
-  // FIX: Added updateUser to the context type.
   updateUser: (userId: string, updatedData: Partial<User>) => Promise<User | undefined>;
   setLanguage: (lang: Language) => void;
   addProduct: (product: Omit<Product, 'productId' | 'dateAdded'>) => Promise<void>;
@@ -36,6 +33,9 @@ interface AppContextType {
   createShippingRequest: (requestData: Omit<ShippingRequest, 'requestId' | 'date' | 'status' | 'deliveryPrice' | 'transportStoreId'>) => Promise<void>;
   updateShippingRequest: (requestId: string, status: ShippingStatus, transportStoreId?: string, price?: number) => Promise<void>;
   updateSubscription: (storeId: string, planId: 'FREE_30' | 'PLAN_6M' | 'PLAN_12M') => Promise<void>;
+  updateStore: (storeId: string, updatedData: Partial<Store>) => Promise<Store | undefined>;
+  deleteStore: (storeId: string) => Promise<void>;
+  deleteUser: (userId: string) => Promise<void>;
   refreshData: () => void;
 }
 
@@ -45,7 +45,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [currentStore, setCurrentStore] = useState<Store | null>(null);
   const [userStores, setUserStores] = useState<Store[]>([]);
-  // FIX: Added state for all users and stores.
   const [users, setUsers] = useState<User[]>([]);
   const [stores, setStores] = useState<Store[]>([]);
   
@@ -58,7 +57,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const fetchData = useCallback(async () => {
     setLoading(true);
-    // FIX: Fetched all users and stores data.
     const [usersData, storesData, productsData, ordersData, shippingRequestsData, plansData] = await Promise.all([
       mockApi.getUsers(),
       mockApi.getStores(),
@@ -132,7 +130,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       return newStore;
   }
   
-  // FIX: Added updateUser function.
   const updateUser = async (userId: string, updatedData: Partial<User>): Promise<User | undefined> => {
     const updatedUser = await mockApi.updateUser(userId, updatedData);
     if(updatedUser && currentUser?.userId === userId) {
@@ -140,6 +137,28 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
     refreshData();
     return updatedUser;
+  };
+
+  const updateStore = async (storeId: string, updatedData: Partial<Store>): Promise<Store | undefined> => {
+      const updatedStore = await mockApi.updateStore(storeId, updatedData);
+      if (updatedStore && currentStore?.storeId === storeId) {
+          setCurrentStore({ ...currentStore, ...updatedStore });
+      }
+      refreshData();
+      return updatedStore;
+  };
+
+  const deleteStore = async (storeId: string) => {
+      await mockApi.deleteStore(storeId);
+      if (currentStore?.storeId === storeId) {
+          setCurrentStore(null);
+      }
+      refreshData();
+  };
+
+  const deleteUser = async (userId: string) => {
+      await mockApi.deleteUser(userId);
+      logout(); // Logout after deleting the account
   };
 
   const addProduct = async (product: Omit<Product, 'productId' | 'dateAdded'>) => {
@@ -211,6 +230,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     createShippingRequest,
     updateShippingRequest,
     updateSubscription,
+    updateStore,
+    deleteStore,
+    deleteUser,
     refreshData
   };
 
