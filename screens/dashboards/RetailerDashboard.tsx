@@ -258,10 +258,9 @@ const CategoryManagementView = () => {
 };
 
 const RetailerDashboard: React.FC = () => {
-    const { currentStore, updateOrderStatus, products, orders, stores, showHelp, deleteProduct } = useAppContext();
+    const { currentStore, updateOrderStatus, products, orders, stores, showHelp, deleteProduct, isPreviewing } = useAppContext();
     const t = useTranslations();
     const [activeView, setActiveView] = useState('dashboard');
-    const [isPreviewing, setIsPreviewing] = useState(false);
     const [modal, setModal] = useState<'add' | 'edit' | 'stock' | null>(null);
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
@@ -312,7 +311,6 @@ const RetailerDashboard: React.FC = () => {
             <DashboardLayout navItems={navItems} activeView={activeView} setActiveView={setActiveView}>
                  <div className="flex justify-between items-center mb-6">
                      <h2 className="text-3xl font-bold text-primary">{t('viewStore')}</h2>
-                     <Button onClick={() => setIsPreviewing(false)}>{t('backToDashboard')}</Button>
                 </div>
                 <StorePreview store={currentStore} products={myProducts} />
             </DashboardLayout>
@@ -459,7 +457,6 @@ const RetailerDashboard: React.FC = () => {
                 </h2>
                 <div>
                   {activeView !== 'dashboard' && <Button onClick={() => setActiveView('dashboard')} variant="secondary" className="w-auto me-2">{t('backToDashboard')}</Button>}
-                  <Button onClick={() => setIsPreviewing(true)} variant="accent" Icon={EyeIcon} className="w-auto">{t('viewStore')}</Button>
                 </div>
             </div>
             {renderView()}

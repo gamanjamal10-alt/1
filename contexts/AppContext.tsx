@@ -28,6 +28,7 @@ interface AppContextType {
   helpContent: string | null;
   isHelpVisible: boolean;
   helpPosition: HelpPosition | null;
+  isPreviewing: boolean;
 
   // Actions
   login: (email: string, password: string) => Promise<User | null>;
@@ -53,6 +54,7 @@ interface AppContextType {
   refreshData: () => void;
   showHelp: (topic: HelpTopic, element: HTMLElement) => void;
   hideHelp: () => void;
+  setIsPreviewing: (isPreviewing: boolean) => void;
 }
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -75,6 +77,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [helpContent, setHelpContent] = useState<string | null>(null);
   const [isHelpVisible, setIsHelpVisible] = useState(false);
   const [helpPosition, setHelpPosition] = useState<HelpPosition | null>(null);
+
+  // Preview State
+  const [isPreviewing, setIsPreviewing] = useState(false);
 
   const getTranslation = (key: keyof typeof translations.en, replacements?: { [key: string]: string }) => {
       const langKey = language === Language.AR ? 'ar' : language === Language.FR ? 'fr' : 'en';
@@ -139,14 +144,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setCurrentUser(null);
     setCurrentStore(null);
     setUserStores([]);
+    setIsPreviewing(false);
   };
 
   const selectStore = (store: Store) => {
       setCurrentStore(store);
+      setIsPreviewing(false);
   };
   
   const unselectStore = () => {
       setCurrentStore(null);
+      setIsPreviewing(false);
   }
   
   const refreshData = useCallback(() => {
@@ -314,6 +322,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     helpContent,
     isHelpVisible,
     helpPosition,
+    isPreviewing,
     login,
     logout,
     registerUser,
@@ -335,7 +344,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     deleteUser,
     refreshData,
     showHelp,
-    hideHelp
+    hideHelp,
+    setIsPreviewing,
   };
 
   return (

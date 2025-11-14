@@ -2,11 +2,11 @@
 import React from 'react';
 import { useAppContext } from '../hooks/useAppContext';
 import { useTranslations } from '../hooks/useTranslations';
-import { AgricultureIcon, LogoutIcon } from './icons';
+import { AgricultureIcon, LogoutIcon, EyeIcon } from './icons';
 import LanguageSelector from './common/LanguageSelector';
 
 const Header: React.FC = () => {
-  const { currentUser, currentStore, logout, unselectStore } = useAppContext();
+  const { currentUser, currentStore, logout, unselectStore, isPreviewing, setIsPreviewing } = useAppContext();
   const t = useTranslations();
 
   return (
@@ -24,16 +24,26 @@ const Header: React.FC = () => {
               {currentStore && <p className="text-xs text-gray-300">{currentStore.storeName}</p>}
             </div>
             {currentStore && (
+                <>
+                <button
+                    onClick={() => setIsPreviewing(!isPreviewing)}
+                    className="bg-accent text-white hover:bg-green-700 font-bold py-2 px-3 rounded-lg transition duration-300 text-sm flex items-center space-x-2 rtl:space-x-reverse"
+                    aria-label={t('viewStore')}
+                >
+                    <EyeIcon className="h-5 w-5"/>
+                    <span className="hidden md:inline">{isPreviewing ? t('backToDashboard') : t('viewStore')}</span>
+                </button>
                 <button
                     onClick={unselectStore}
                     className="bg-secondary text-primary hover:bg-yellow-50 font-bold py-2 px-3 rounded-lg transition duration-300 text-sm"
                 >
                     {t('switchStore')}
                 </button>
+                </>
             )}
             <button
               onClick={logout}
-              className="flex items-center space-x-2 rtl:space-x-reverse bg-accent hover:bg-green-700 text-white font-bold py-2 px-3 rounded-lg transition duration-300"
+              className="flex items-center space-x-2 rtl:space-x-reverse bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg transition duration-300"
               aria-label="Logout"
             >
               <LogoutIcon className="h-5 w-5" />
