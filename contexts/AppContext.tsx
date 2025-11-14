@@ -1,6 +1,6 @@
 
 import React, { createContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { User, Store, Subscription, Product, Order, ShippingRequest, SubscriptionPlan, OrderStatus, ShippingStatus, Language, HelpTopic, UserRole } from '../types';
+import { User, Store, Subscription, Product, Order, ShippingRequest, SubscriptionPlan, OrderStatus, ShippingStatus, Language, HelpTopic, UserRole, CartItem, OrderType } from '../types';
 import { mockApi } from '../services/mockApi';
 import { GoogleGenAI } from "@google/genai";
 import { translations } from '../utils/translations'; // Import translations directly
@@ -29,6 +29,8 @@ interface AppContextType {
   isHelpVisible: boolean;
   helpPosition: HelpPosition | null;
   isPreviewing: boolean;
+  cart: CartItem[];
+  viewToNavigate: string | null;
 
   // Actions
   login: (email: string, password: string) => Promise<User | null>;
@@ -43,7 +45,6 @@ interface AppContextType {
   addProduct: (product: Omit<Product, 'productId' | 'dateAdded'>) => Promise<void>;
   updateProduct: (productId: string, updatedData: Partial<Product>) => Promise<void>;
   deleteProduct: (productId: string) => Promise<void>;
-  placeOrder: (orderData: Omit<Order, 'orderId' | 'date' | 'orderStatus' | 'totalPrice'>) => Promise<void>;
   updateOrderStatus: (orderId: string, status: OrderStatus) => Promise<void>;
   createShippingRequest: (requestData: Omit<ShippingRequest, 'requestId' | 'date' | 'status' | 'deliveryPrice' | 'transportStoreId'>) => Promise<void>;
   updateShippingRequest: (requestId: string, status: ShippingStatus, transportStoreId?: string, price?: number) => Promise<void>;
@@ -55,6 +56,14 @@ interface AppContextType {
   showHelp: (topic: HelpTopic, element: HTMLElement) => void;
   hideHelp: () => void;
   setIsPreviewing: (isPreviewing: boolean) => void;
+  // Cart Actions
+  addToCart: (productId: string, quantity: number) => void;
+  removeFromCart: (productId: string) => void;
+  updateCartQuantity: (productId: string, quantity: number) => void;
+  clearCart: () => void;
+  placeOrders: (checkoutDetails: Omit<Order, 'orderId' | 'date' | 'orderStatus' | 'totalPrice' | 'productId' | 'buyerStoreId' | 'sellerStoreId' | 'orderType' | 'quantity' | 'notes'>) => Promise<void>;
+  navigateToDashboardView: (view: string) => void;
+  clearDashboardNavigation: () => void;
 }
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -80,6 +89,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // Preview State
   const [isPreviewing, setIsPreviewing] = useState(false);
+  
+  // Cart State
+  const [cart, setCart] = useState<CartItem[]>([]);
+  
+  // Navigation State
+  const [viewToNavigate, setViewToNavigate] = useState<string | null>(null);
+
 
   const getTranslation = (key: keyof typeof translations.en, replacements?: { [key: string]: string }) => {
       const langKey = language === Language.AR ? 'ar' : language === Language.FR ? 'fr' : 'en';
@@ -145,16 +161,20 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setCurrentStore(null);
     setUserStores([]);
     setIsPreviewing(false);
+    setCart([]);
   };
 
   const selectStore = (store: Store) => {
       setCurrentStore(store);
       setIsPreviewing(false);
+      setViewToNavigate(null);
   };
   
   const unselectStore = () => {
       setCurrentStore(null);
       setIsPreviewing(false);
+      setCart([]);
+      setViewToNavigate(null);
   }
   
   const refreshData = useCallback(() => {
@@ -227,11 +247,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     await mockApi.deleteProduct(productId);
     setProducts(prev => prev.filter(p => p.productId !== productId));
     setOrders(prev => prev.filter(o => o.productId !== productId));
-  };
-
-  const placeOrder = async (orderData: Omit<Order, 'orderId' | 'date' | 'orderStatus' | 'totalPrice'>) => {
-    const newOrder = await mockApi.createOrder(orderData);
-    setOrders(prev => [...prev, newOrder]);
   };
 
   const updateOrderStatus = async (orderId: string, status: OrderStatus) => {
@@ -308,6 +323,81 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setHelpPosition(null);
   };
 
+  // Cart Functions
+    const addToCart = (productId: string, quantity: number) => {
+        const product = products.find(p => p.productId === productId);
+        if (!product) return;
+
+        setCart(prevCart => {
+            const existingItem = prevCart.find(item => item.productId === productId);
+            if (existingItem) {
+                const newQuantity = existingItem.quantity + quantity;
+                return prevCart.map(item => 
+                    item.productId === productId 
+                        ? { ...item, quantity: newQuantity > product.stockQuantity ? product.stockQuantity : newQuantity } 
+                        : item
+                );
+            }
+            const newQuantity = quantity > product.stockQuantity ? product.stockQuantity : quantity;
+            return [...prevCart, { productId, quantity: newQuantity }];
+        });
+    };
+
+    const updateCartQuantity = (productId: string, quantity: number) => {
+        const product = products.find(p => p.productId === productId);
+        if (!product) return;
+
+        if (quantity <= 0) {
+            removeFromCart(productId);
+        } else {
+            setCart(prevCart => prevCart.map(item => 
+                item.productId === productId ? { ...item, quantity: quantity > product.stockQuantity ? product.stockQuantity : quantity } : item
+            ));
+        }
+    };
+
+    const removeFromCart = (productId: string) => {
+        setCart(prevCart => prevCart.filter(item => item.productId !== productId));
+    };
+
+    const clearCart = () => {
+        setCart([]);
+    };
+
+    const placeOrders = async (checkoutDetails: Omit<Order, 'orderId' | 'date' | 'orderStatus' | 'totalPrice' | 'productId' | 'buyerStoreId' | 'sellerStoreId' | 'orderType' | 'quantity' | 'notes'>) => {
+        if (!currentStore) throw new Error("No buyer store selected.");
+        if (cart.length === 0) throw new Error("Cart is empty.");
+
+        const newOrdersPromises = cart.map(item => {
+            const product = products.find(p => p.productId === item.productId);
+            if (!product) return Promise.reject(`Product ${item.productId} not found`);
+
+            const orderType = currentStore.storeType === UserRole.WHOLESALER ? OrderType.WHOLESALE : OrderType.RETAIL;
+
+            return mockApi.createOrder({
+                productId: item.productId,
+                buyerStoreId: currentStore.storeId,
+                sellerStoreId: product.storeId,
+                orderType,
+                quantity: item.quantity,
+                notes: '', // Notes are per-item and not in this flow
+                ...checkoutDetails
+            });
+        });
+        
+        const createdOrders = await Promise.all(newOrdersPromises);
+        setOrders(prev => [...prev, ...createdOrders]);
+        clearCart();
+    };
+
+    const navigateToDashboardView = (view: string) => {
+        setViewToNavigate(view);
+    };
+
+    const clearDashboardNavigation = () => {
+        setViewToNavigate(null);
+    }
+
   const value = {
     currentUser,
     currentStore,
@@ -323,6 +413,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     isHelpVisible,
     helpPosition,
     isPreviewing,
+    cart,
+    viewToNavigate,
     login,
     logout,
     registerUser,
@@ -334,7 +426,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     addProduct,
     updateProduct,
     deleteProduct,
-    placeOrder,
     updateOrderStatus,
     createShippingRequest,
     updateShippingRequest,
@@ -346,6 +437,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     showHelp,
     hideHelp,
     setIsPreviewing,
+    addToCart,
+    removeFromCart,
+    updateCartQuantity,
+    clearCart,
+    placeOrders,
+    navigateToDashboardView,
+    clearDashboardNavigation,
   };
 
   return (

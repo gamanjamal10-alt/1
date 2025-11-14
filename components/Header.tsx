@@ -2,12 +2,15 @@
 import React from 'react';
 import { useAppContext } from '../hooks/useAppContext';
 import { useTranslations } from '../hooks/useTranslations';
-import { AgricultureIcon, LogoutIcon, EyeIcon } from './icons';
+import { AgricultureIcon, LogoutIcon, EyeIcon, ShoppingCartIcon } from './icons';
 import LanguageSelector from './common/LanguageSelector';
+import { UserRole } from '../types';
 
 const Header: React.FC = () => {
-  const { currentUser, currentStore, logout, unselectStore, isPreviewing, setIsPreviewing } = useAppContext();
+  const { currentUser, currentStore, logout, unselectStore, isPreviewing, setIsPreviewing, cart, navigateToDashboardView } = useAppContext();
   const t = useTranslations();
+
+  const isBuyerRole = currentStore?.storeType === UserRole.WHOLESALER || currentStore?.storeType === UserRole.RETAILER;
 
   return (
     <header className="bg-primary text-secondary p-4 shadow-md flex justify-between items-center">
@@ -23,6 +26,20 @@ const Header: React.FC = () => {
               <p className="font-semibold">{currentUser.fullName}</p>
               {currentStore && <p className="text-xs text-gray-300">{currentStore.storeName}</p>}
             </div>
+            {isBuyerRole && (
+                 <button 
+                    onClick={() => navigateToDashboardView('cart')} 
+                    className="relative text-white p-2 rounded-full hover:bg-blue-800 transition-colors"
+                    aria-label={t('shoppingCart')}
+                 >
+                    <ShoppingCartIcon className="h-6 w-6" />
+                    {cart.length > 0 && (
+                        <span className="absolute top-0 right-0 block h-5 w-5 rounded-full ring-2 ring-primary bg-accent text-white text-xs flex items-center justify-center">
+                            {cart.length}
+                        </span>
+                    )}
+                 </button>
+            )}
             {currentStore && (
                 <>
                 <button
