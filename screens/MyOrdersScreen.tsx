@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAppContext } from '../hooks/useAppContext';
 import { Order, OrderStatus, ShippingRequest, ShippingStatus } from '../types';
 import Card from '../components/common/Card';
@@ -91,10 +91,10 @@ const OrderItem: React.FC<{ order: Order }> = ({ order }) => {
 };
 
 interface MyOrdersScreenProps {
-  onBack: () => void;
+  orderFilter: 'active' | 'history';
 }
 
-const MyOrdersScreen: React.FC<MyOrdersScreenProps> = ({ onBack }) => {
+const MyOrdersScreen: React.FC<MyOrdersScreenProps> = ({ orderFilter }) => {
     const { currentUser, refreshData } = useAppContext();
     const [myOrders, setMyOrders] = useState<Order[]>([]);
 
@@ -106,15 +106,25 @@ const MyOrdersScreen: React.FC<MyOrdersScreenProps> = ({ onBack }) => {
         }
     }, [currentUser, refreshData]);
 
+    const filteredOrders = useMemo(() => {
+        const activeStatuses = [OrderStatus.PENDING, OrderStatus.CONFIRMED];
+        if (orderFilter === 'active') {
+            return myOrders.filter(order => activeStatuses.includes(order.orderStatus));
+        }
+        return myOrders.filter(order => !activeStatuses.includes(order.orderStatus));
+    }, [myOrders, orderFilter]);
+    
+    const title = orderFilter === 'active' ? 'My Active Orders' : 'My Order History';
+    const emptyMessage = orderFilter === 'active' ? 'You have no active orders.' : 'You have no past orders.';
+
     return (
-        <div className="p-4 md:p-8">
-            <Button onClick={onBack} className="mb-6 w-auto" variant="secondary">Back to Dashboard</Button>
-            <h2 className="text-3xl font-bold text-primary mb-6">My Orders</h2>
+        <div>
+            <h2 className="text-3xl font-bold text-primary mb-6">{title}</h2>
             <div>
-                {myOrders.length > 0 ? (
-                    myOrders.map(order => <OrderItem key={order.orderId} order={order} />)
+                {filteredOrders.length > 0 ? (
+                    filteredOrders.map(order => <OrderItem key={order.orderId} order={order} />)
                 ) : (
-                    <p>You have not placed any orders yet.</p>
+                    <p>{emptyMessage}</p>
                 )}
             </div>
         </div>

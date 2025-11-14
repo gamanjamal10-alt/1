@@ -12,6 +12,7 @@ interface AppContextType {
   login: (userId: string) => void;
   logout: () => void;
   addProduct: (product: Omit<Product, 'productId' | 'dateAdded'>) => Promise<void>;
+  updateProduct: (productId: string, updatedData: Partial<Product>) => Promise<void>;
   updateProductStock: (productId: string, newStock: number) => Promise<void>;
   placeOrder: (orderData: Omit<Order, 'orderId' | 'date' | 'orderStatus' | 'totalPrice'>) => Promise<void>;
   updateOrderStatus: (orderId: string, status: OrderStatus) => Promise<void>;
@@ -69,6 +70,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     refreshData();
   };
 
+  const updateProduct = async (productId: string, updatedData: Partial<Product>) => {
+    await mockApi.updateProduct(productId, updatedData);
+    refreshData();
+  };
+
   const updateProductStock = async (productId: string, newStock: number) => {
     await mockApi.updateProductStock(productId, newStock);
     refreshData();
@@ -104,6 +110,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     login,
     logout,
     addProduct,
+    updateProduct,
     updateProductStock,
     placeOrder,
     updateOrderStatus,

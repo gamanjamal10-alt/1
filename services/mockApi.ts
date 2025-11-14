@@ -50,6 +50,18 @@ let users: User[] = [
     profilePhoto: 'https://picsum.photos/seed/transport1/200',
     registrationDate: '2023-04-05',
   },
+  {
+    userId: 'admin1',
+    fullName: 'Admin User',
+    accountType: UserRole.ADMIN,
+    phoneNumber: '212600000000',
+    whatsAppLink: 'https://wa.me/212600000000',
+    businessName: 'Souk El Fellah HQ',
+    address: 'Casablanca, Morocco',
+    locationGps: { lat: 33.5731, lng: -7.5898 },
+    profilePhoto: 'https://picsum.photos/seed/admin1/200',
+    registrationDate: '2023-01-01',
+  },
 ];
 
 let products: Product[] = [
@@ -126,6 +138,14 @@ export const mockApi = {
     };
     products.push(newProduct);
     return Promise.resolve(newProduct);
+  },
+   updateProduct: async (productId: string, updatedData: Partial<Product>): Promise<Product | undefined> => {
+    const productIndex = products.findIndex(p => p.productId === productId);
+    if (productIndex > -1) {
+      products[productIndex] = { ...products[productIndex], ...updatedData };
+      return Promise.resolve(products[productIndex]);
+    }
+    return Promise.resolve(undefined);
   },
   updateProductStock: async (productId: string, newStock: number): Promise<Product | undefined> => {
     const product = products.find(p => p.productId === productId);

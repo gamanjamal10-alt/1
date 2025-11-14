@@ -16,3 +16,7 @@ export { default as WhatsAppIcon } from './WhatsAppIcon';
 export { default as CheckCircleIcon } from './CheckCircleIcon';
 export { default as XCircleIcon } from './XCircleIcon';
 export { default as ClockIcon } from './ClockIcon';
+export { default as DashboardIcon } from './DashboardIcon';
+export { default as EditIcon } from './EditIcon';
+export { default as HistoryIcon } from './HistoryIcon';
+export { default as SettingsIcon } from './SettingsIcon';

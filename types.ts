@@ -4,6 +4,7 @@ export enum UserRole {
   WHOLESALER = 'Wholesaler',
   RETAILER = 'Retailer',
   TRANSPORT = 'Transport',
+  ADMIN = 'Admin',
 }
 
 export enum OrderType {
