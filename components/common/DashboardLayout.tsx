@@ -1,5 +1,6 @@
-
 import React, { ReactNode } from 'react';
+import { useAppContext } from '../../hooks/useAppContext';
+import { useTranslations } from '../../hooks/useTranslations';
 
 interface NavItem {
   label: string;
@@ -14,7 +15,38 @@ interface DashboardLayoutProps {
   children: ReactNode;
 }
 
+// FIX: Destructured setActiveView from props to make it available inside the component.
+const SubscriptionBanner: React.FC<{setActiveView: (view: string) => void}> = ({setActiveView}) => {
+    const { currentUser } = useAppContext();
+    const t = useTranslations();
+
+    if (!currentUser || currentUser.subscriptionPlanId !== 'plan1') return null;
+
+    const endDate = new Date(currentUser.subscriptionEndDate);
+    const today = new Date();
+    const daysRemaining = Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (daysRemaining < 0) {
+        return (
+             <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
+                <p className="font-bold">{t('trialExpired')}</p>
+                <p>{t('trialExpiredMessage')} <button onClick={() => setActiveView('subscription')} className="font-bold underline">{t('upgradeNow')}</button></p>
+            </div>
+        )
+    }
+
+    return (
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
+            <p className="font-bold">{t('freeTrial')}</p>
+            <p>{t('trialMessage', { days: daysRemaining.toString() })} <button onClick={() => setActiveView('subscription')} className="font-bold underline">{t('upgrade')}</button></p>
+        </div>
+    )
+}
+
+
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ navItems, activeView, setActiveView, children }) => {
+  const t = useTranslations();
+  
   return (
     <div className="flex flex-col md:flex-row min-h-[calc(100vh-80px)]">
       <aside className="w-full md:w-64 bg-primary text-secondary p-4 md:p-6 space-y-2">
@@ -29,12 +61,15 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ navItems, activeView,
             }`}
           >
             <Icon className="w-6 h-6" />
-            <span>{label}</span>
+            <span>{t(label as any)}</span>
           </button>
         ))}
       </aside>
-      <main className="flex-1 p-4 md:p-8 bg-gray-100">
-        {children}
+      <main className="flex-1 bg-gray-100">
+        <SubscriptionBanner setActiveView={setActiveView} />
+        <div className="p-4 md:p-8">
+            {children}
+        </div>
       </main>
     </div>
   );

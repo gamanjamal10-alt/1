@@ -1,8 +1,8 @@
-
 import React, { ReactNode } from 'react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  children: ReactNode;
+  // FIX: Made children prop optional to allow for icon-only buttons.
+  children?: ReactNode;
   variant?: 'primary' | 'secondary' | 'accent' | 'contact';
   className?: string;
   Icon?: React.FC<{className?: string}>;

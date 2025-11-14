@@ -1,6 +1,6 @@
 
 import React, { createContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { User, Product, Order, ShippingRequest, UserRole, OrderStatus, ShippingStatus } from '../types';
+import { User, Product, Order, ShippingRequest, SubscriptionPlan, UserRole, OrderStatus, ShippingStatus, Language } from '../types';
 import { mockApi } from '../services/mockApi';
 
 interface AppContextType {
@@ -9,8 +9,13 @@ interface AppContextType {
   products: Product[];
   orders: Order[];
   shippingRequests: ShippingRequest[];
-  login: (userId: string) => void;
+  subscriptionPlans: SubscriptionPlan[];
+  language: Language;
+  login: (email: string, password: string) => Promise<User | null>;
   logout: () => void;
+  registerUser: (userData: Omit<User, 'userId' | 'registrationDate' | 'subscriptionPlanId' | 'subscriptionEndDate' | 'whatsAppLink' | 'locationGps' | 'profilePhoto' | 'address'>) => Promise<User>;
+  updateUser: (userId: string, data: Partial<User>) => Promise<void>;
+  setLanguage: (lang: Language) => void;
   addProduct: (product: Omit<Product, 'productId' | 'dateAdded'>) => Promise<void>;
   updateProduct: (productId: string, updatedData: Partial<Product>) => Promise<void>;
   updateProductStock: (productId: string, newStock: number) => Promise<void>;
@@ -18,6 +23,7 @@ interface AppContextType {
   updateOrderStatus: (orderId: string, status: OrderStatus) => Promise<void>;
   createShippingRequest: (requestData: Omit<ShippingRequest, 'requestId' | 'date' | 'status' | 'deliveryPrice' | 'transportCompanyId'>) => Promise<void>;
   updateShippingRequest: (requestId: string, status: ShippingStatus, transportCompanyId?: string, price?: number) => Promise<void>;
+  updateSubscription: (userId: string, planId: string) => Promise<void>;
   refreshData: () => void;
 }
 
@@ -29,20 +35,24 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [shippingRequests, setShippingRequests] = useState<ShippingRequest[]>([]);
+  const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlan[]>([]);
+  const [language, setLanguage] = useState<Language>(Language.EN);
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
-    const [usersData, productsData, ordersData, shippingRequestsData] = await Promise.all([
+    const [usersData, productsData, ordersData, shippingRequestsData, plansData] = await Promise.all([
       mockApi.getUsers(),
       mockApi.getProducts(),
       mockApi.getOrders(),
       mockApi.getShippingRequests(),
+      mockApi.getSubscriptionPlans(),
     ]);
     setUsers(usersData);
     setProducts(productsData);
     setOrders(ordersData);
     setShippingRequests(shippingRequestsData);
+    setSubscriptionPlans(plansData);
     setLoading(false);
   }, []);
 
@@ -50,11 +60,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     fetchData();
   }, [fetchData]);
 
-  const login = (userId: string) => {
-    const user = users.find(u => u.userId === userId);
-    if (user) {
+  const login = async (email: string, password: string): Promise<User | null> => {
+    const user = await mockApi.getUserByEmail(email);
+    if (user && user.password === password) {
       setCurrentUser(user);
+      setLanguage(user.language);
+      return user;
     }
+    return null;
   };
 
   const logout = () => {
@@ -64,6 +77,21 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const refreshData = () => {
       fetchData();
   };
+
+  const registerUser = async (userData: Omit<User, 'userId' | 'registrationDate' | 'subscriptionPlanId' | 'subscriptionEndDate' | 'whatsAppLink' | 'locationGps' | 'profilePhoto' | 'address'>) => {
+      const newUser = await mockApi.registerUser(userData);
+      refreshData();
+      return newUser;
+  }
+  
+  const updateUser = async (userId: string, data: Partial<User>) => {
+      await mockApi.updateUser(userId, data);
+      if (currentUser?.userId === userId) {
+          const updatedUser = await mockApi.getUserById(userId);
+          if (updatedUser) setCurrentUser(updatedUser);
+      }
+      refreshData();
+  }
 
   const addProduct = async (product: Omit<Product, 'productId' | 'dateAdded'>) => {
     await mockApi.addProduct(product);
@@ -100,6 +128,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     refreshData();
   };
 
+  const updateSubscription = async (userId: string, planId: string) => {
+      await mockApi.updateSubscription(userId, planId);
+      if(currentUser?.userId === userId) {
+          const user = await mockApi.getUserById(userId);
+          if(user) setCurrentUser(user);
+      }
+      refreshData();
+  }
 
   const value = {
     currentUser,
@@ -107,8 +143,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     products,
     orders,
     shippingRequests,
+    subscriptionPlans,
+    language,
     login,
     logout,
+    registerUser,
+    updateUser,
+    setLanguage,
     addProduct,
     updateProduct,
     updateProductStock,
@@ -116,6 +157,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     updateOrderStatus,
     createShippingRequest,
     updateShippingRequest,
+    updateSubscription,
     refreshData
   };
 

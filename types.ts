@@ -27,17 +27,38 @@ export enum ShippingStatus {
   REJECTED = 'Rejected',
 }
 
+export enum Language {
+  EN = 'English',
+  FR = 'French',
+  AR = 'Arabic',
+}
+
+export interface SubscriptionPlan {
+  planId: string;
+  nameKey: string;
+  price: number; // DZD
+  durationDays: number;
+  features: string[];
+}
+
 export interface User {
   userId: string;
   fullName: string;
+  email: string;
+  password?: string; // Mocked
+  country: string;
+  enable2FA: boolean;
+  language: Language;
   accountType: UserRole;
   phoneNumber: string;
   whatsAppLink: string;
-  businessName: string;
+  businessName: string; // Store Name
   address: string;
   locationGps: { lat: number; lng: number };
   profilePhoto: string;
   registrationDate: string;
+  subscriptionPlanId: string;
+  subscriptionEndDate: string;
 }
 
 export interface Product {

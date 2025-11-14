@@ -1,10 +1,22 @@
 
-import { User, Product, Order, ShippingRequest, UserRole, OrderType, OrderStatus, ShippingStatus } from '../types';
+import { User, Product, Order, ShippingRequest, SubscriptionPlan, UserRole, OrderType, OrderStatus, ShippingStatus, Language } from '../types';
+
+const addDays = (date: Date, days: number): Date => {
+    const result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+}
+const today = new Date();
 
 let users: User[] = [
   {
     userId: 'farmer1',
     fullName: 'Ahmed Hassan',
+    email: 'ahmed.hassan@example.com',
+    password: 'password123',
+    country: 'Morocco',
+    enable2FA: true,
+    language: Language.EN,
     accountType: UserRole.FARMER,
     phoneNumber: '212612345678',
     whatsAppLink: 'https://wa.me/212612345678',
@@ -13,10 +25,17 @@ let users: User[] = [
     locationGps: { lat: 33.8935, lng: -5.5473 },
     profilePhoto: 'https://picsum.photos/seed/farmer1/200',
     registrationDate: '2023-01-15',
+    subscriptionPlanId: 'plan2',
+    subscriptionEndDate: addDays(today, 100).toISOString().split('T')[0],
   },
   {
     userId: 'wholesaler1',
     fullName: 'Fatima Zahra',
+    email: 'fatima.zahra@example.com',
+    password: 'password123',
+    country: 'Morocco',
+    enable2FA: false,
+    language: Language.FR,
     accountType: UserRole.WHOLESALER,
     phoneNumber: '212623456789',
     whatsAppLink: 'https://wa.me/212623456789',
@@ -25,10 +44,17 @@ let users: User[] = [
     locationGps: { lat: 33.5731, lng: -7.5898 },
     profilePhoto: 'https://picsum.photos/seed/wholesaler1/200',
     registrationDate: '2023-02-20',
+    subscriptionPlanId: 'plan3',
+    subscriptionEndDate: addDays(today, 250).toISOString().split('T')[0],
   },
   {
     userId: 'retailer1',
     fullName: 'Youssef Alami',
+    email: 'youssef.alami@example.com',
+    password: 'password123',
+    country: 'Algeria',
+    enable2FA: false,
+    language: Language.AR,
     accountType: UserRole.RETAILER,
     phoneNumber: '212634567890',
     whatsAppLink: 'https://wa.me/212634567890',
@@ -37,10 +63,17 @@ let users: User[] = [
     locationGps: { lat: 34.0209, lng: -6.8417 },
     profilePhoto: 'https://picsum.photos/seed/retailer1/200',
     registrationDate: '2023-03-10',
+    subscriptionPlanId: 'plan1',
+    subscriptionEndDate: addDays(today, 15).toISOString().split('T')[0],
   },
   {
     userId: 'transport1',
     fullName: 'Karim Express',
+    email: 'karim.express@example.com',
+    password: 'password123',
+    country: 'Morocco',
+    enable2FA: true,
+    language: Language.EN,
     accountType: UserRole.TRANSPORT,
     phoneNumber: '212645678901',
     whatsAppLink: 'https://wa.me/212645678901',
@@ -49,10 +82,17 @@ let users: User[] = [
     locationGps: { lat: 35.884, lng: -5.526 },
     profilePhoto: 'https://picsum.photos/seed/transport1/200',
     registrationDate: '2023-04-05',
+    subscriptionPlanId: 'plan2',
+    subscriptionEndDate: addDays(today, 50).toISOString().split('T')[0],
   },
   {
     userId: 'admin1',
     fullName: 'Admin User',
+    email: 'admin@example.com',
+    password: 'password123',
+    country: 'Morocco',
+    enable2FA: false,
+    language: Language.EN,
     accountType: UserRole.ADMIN,
     phoneNumber: '212600000000',
     whatsAppLink: 'https://wa.me/212600000000',
@@ -61,6 +101,8 @@ let users: User[] = [
     locationGps: { lat: 33.5731, lng: -7.5898 },
     profilePhoto: 'https://picsum.photos/seed/admin1/200',
     registrationDate: '2023-01-01',
+    subscriptionPlanId: 'plan3',
+    subscriptionEndDate: '9999-12-31',
   },
 ];
 
@@ -123,10 +165,63 @@ let shippingRequests: ShippingRequest[] = [
     }
 ];
 
+const subscriptionPlans: SubscriptionPlan[] = [
+    {
+        planId: 'plan1',
+        nameKey: 'freePlan',
+        price: 0,
+        durationDays: 30,
+        features: ['basicUsage'],
+    },
+    {
+        planId: 'plan2',
+        nameKey: 'sixMonthPlan',
+        price: 6500,
+        durationDays: 180,
+        features: ['fullFeatures'],
+    },
+    {
+        planId: 'plan3',
+        nameKey: 'twelveMonthPlan',
+        price: 9500,
+        durationDays: 365,
+        features: ['fullFeatures', 'prioritySupport'],
+    },
+];
+
 export const mockApi = {
+  // USER
   getUsers: async (): Promise<User[]> => Promise.resolve(users),
   getUserById: async (id: string): Promise<User | undefined> => Promise.resolve(users.find(u => u.userId === id)),
+  getUserByEmail: async (email: string): Promise<User | undefined> => Promise.resolve(users.find(u => u.email.toLowerCase() === email.toLowerCase())),
+  registerUser: async (userData: Omit<User, 'userId' | 'registrationDate' | 'subscriptionPlanId' | 'subscriptionEndDate' | 'whatsAppLink' | 'locationGps' | 'profilePhoto' | 'address'>): Promise<User> => {
+    if (users.some(u => u.email.toLowerCase() === userData.email.toLowerCase())) {
+        throw new Error("User with this email already exists.");
+    }
+    const newUser: User = {
+        ...userData,
+        userId: `user${Date.now()}`,
+        registrationDate: new Date().toISOString().split('T')[0],
+        subscriptionPlanId: 'plan1', // Free plan
+        subscriptionEndDate: addDays(new Date(), 30).toISOString().split('T')[0],
+        whatsAppLink: `https://wa.me/${userData.phoneNumber.replace(/\D/g, '')}`,
+        locationGps: { lat: 0, lng: 0 }, // Default location
+        profilePhoto: `https://picsum.photos/seed/user${Date.now()}/200`,
+        address: 'Not specified',
+    };
+    users.push(newUser);
+    return Promise.resolve(newUser);
+  },
+  updateUser: async (userId: string, updatedData: Partial<User>): Promise<User | undefined> => {
+    const userIndex = users.findIndex(u => u.userId === userId);
+    if (userIndex > -1) {
+      users[userIndex] = { ...users[userIndex], ...updatedData };
+      return Promise.resolve(users[userIndex]);
+    }
+    return Promise.resolve(undefined);
+  },
   
+  // PRODUCT
   getProducts: async (): Promise<Product[]> => Promise.resolve(products),
   getProductById: async (id: string): Promise<Product | undefined> => Promise.resolve(products.find(p => p.productId === id)),
   getProductsByFarmer: async (farmerId: string): Promise<Product[]> => Promise.resolve(products.filter(p => p.farmerId === farmerId)),
@@ -156,6 +251,7 @@ export const mockApi = {
     return Promise.resolve(undefined);
   },
 
+  // ORDER
   getOrders: async (): Promise<Order[]> => Promise.resolve(orders),
   getOrdersForBuyer: async (buyerId: string): Promise<Order[]> => Promise.resolve(orders.filter(o => o.buyerId === buyerId)),
   getOrdersForSeller: async (sellerId: string): Promise<Order[]> => Promise.resolve(orders.filter(o => o.sellerId === sellerId)),
@@ -183,6 +279,7 @@ export const mockApi = {
     return Promise.resolve(undefined);
   },
 
+  // SHIPPING
   getShippingRequests: async (): Promise<ShippingRequest[]> => Promise.resolve(shippingRequests),
   getShippingRequestByOrder: async(orderId: string): Promise<ShippingRequest | undefined> => Promise.resolve(shippingRequests.find(sr => sr.orderId === orderId)),
   getShippingRequestsForTransporter: async (transportCompanyId: string): Promise<ShippingRequest[]> => Promise.resolve(shippingRequests.filter(sr => sr.transportCompanyId === transportCompanyId)),
@@ -207,5 +304,18 @@ export const mockApi = {
         return Promise.resolve(request);
     }
     return Promise.resolve(undefined);
+  },
+
+  // SUBSCRIPTION
+  getSubscriptionPlans: async(): Promise<SubscriptionPlan[]> => Promise.resolve(subscriptionPlans),
+  updateSubscription: async(userId: string, planId: string): Promise<User | undefined> => {
+      const user = users.find(u => u.userId === userId);
+      const plan = subscriptionPlans.find(p => p.planId === planId);
+      if(user && plan) {
+          user.subscriptionPlanId = plan.planId;
+          user.subscriptionEndDate = addDays(new Date(), plan.durationDays).toISOString().split('T')[0];
+          return Promise.resolve(user);
+      }
+      return Promise.resolve(undefined);
   }
 };

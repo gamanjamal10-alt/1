@@ -1,67 +1,93 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useAppContext } from '../hooks/useAppContext';
-import { User, UserRole } from '../types';
-import { AgricultureIcon, TruckIcon, CartIcon, UserGroupIcon } from '../components/icons';
-import Card from '../components/common/Card';
+import { useTranslations } from '../hooks/useTranslations';
+import Button from '../components/common/Button';
+import Modal from '../components/common/Modal';
+import { AgricultureIcon } from '../components/icons';
 
-const RoleCard: React.FC<{ role: UserRole; users: User[]; onSelectUser: (userId: string) => void }> = ({ role, users, onSelectUser }) => {
-    const roleConfig = {
-        [UserRole.FARMER]: { icon: AgricultureIcon, color: 'text-accent', title: 'Farmer Section' },
-        [UserRole.WHOLESALER]: { icon: UserGroupIcon, color: 'text-blue-500', title: 'Wholesaler Section' },
-        [UserRole.RETAILER]: { icon: CartIcon, color: 'text-purple-500', title: 'Retailer Section' },
-        [UserRole.TRANSPORT]: { icon: TruckIcon, color: 'text-orange-500', title: 'Transport Section' },
-    };
+interface LoginScreenProps {
+  onLoginSuccess: () => void;
+  onGoToRegister: () => void;
+}
 
-    const { icon: Icon, color, title } = roleConfig[role];
-    const filteredUsers = users.filter(u => u.accountType === role);
+const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess, onGoToRegister }) => {
+  const { login } = useAppContext();
+  const t = useTranslations();
+  const [email, setEmail] = useState('ahmed.hassan@example.com');
+  const [password, setPassword] = useState('password123');
+  const [error, setError] = useState('');
+  const [show2FAModal, setShow2FAModal] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-    return (
-        <Card className="p-6 flex flex-col items-center text-center bg-white hover:shadow-xl transition-shadow duration-300">
-            <Icon className={`w-16 h-16 ${color} mb-4`} />
-            <h3 className="text-2xl font-bold text-primary mb-4">{title}</h3>
-            <p className="text-gray-600 mb-4">Login as:</p>
-            <div className="w-full space-y-2">
-                {filteredUsers.map(user => (
-                    <button
-                        key={user.userId}
-                        onClick={() => onSelectUser(user.userId)}
-                        className="w-full bg-secondary hover:bg-yellow-200 text-primary font-semibold py-2 px-4 rounded-lg transition-colors"
-                    >
-                        {user.fullName}
-                    </button>
-                ))}
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setIsLoggingIn(true);
+    try {
+      const user = await login(email, password);
+      if (user) {
+        if (user.enable2FA) {
+            // Simulate 2FA check on first login for enabled users
+            setShow2FAModal(true);
+        } else {
+            onLoginSuccess();
+        }
+      } else {
+        setError(t('invalidCredentials'));
+      }
+    } catch (err) {
+      setError(t('loginError'));
+    } finally {
+        setIsLoggingIn(false);
+    }
+  };
+
+  const handle2FAConfirm = () => {
+    setShow2FAModal(false);
+    onLoginSuccess();
+  }
+
+  return (
+    <div className="min-h-screen bg-secondary flex flex-col justify-center items-center p-4">
+      <div className="w-full max-w-md">
+        <header className="text-center mb-8">
+          <div className="inline-flex items-center space-x-4 mb-4">
+            <AgricultureIcon className="w-16 h-16 text-accent" />
+            <h1 className="text-4xl font-extrabold text-primary">{t('soukElFellah')}</h1>
+          </div>
+          <p className="text-lg text-gray-700">{t('loginTitle')}</p>
+        </header>
+        <div className="bg-white p-8 rounded-lg shadow-xl">
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">{t('email')}</label>
+              <input type="email" id="email" value={email} onChange={e => setEmail(e.target.value)} required className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary"/>
             </div>
-        </Card>
-    );
-};
-
-const LoginScreen: React.FC = () => {
-    const { users, login } = useAppContext();
-
-    return (
-        <div className="min-h-screen bg-secondary">
-            <div className="container mx-auto px-4 py-8">
-                <header className="text-center mb-12">
-                    <div className="inline-flex items-center space-x-4 mb-4">
-                        <AgricultureIcon className="w-20 h-20 text-accent" />
-                        <h1 className="text-5xl font-extrabold text-primary">Souk El Fellah</h1>
-                    </div>
-                    <p className="text-xl text-gray-700">Connecting Agriculture: From Farm to Market</p>
-                </header>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    <RoleCard role={UserRole.FARMER} users={users} onSelectUser={login} />
-                    <RoleCard role={UserRole.WHOLESALER} users={users} onSelectUser={login} />
-                    <RoleCard role={UserRole.RETAILER} users={users} onSelectUser={login} />
-                    <RoleCard role={UserRole.TRANSPORT} users={users} onSelectUser={login} />
-                </div>
-                 <footer className="text-center text-gray-600 mt-12">
-                    <p>&copy; 2024 Souk El Fellah. All rights reserved.</p>
-                    <p className="text-sm">This is a demonstration application. No real transactions are processed.</p>
-                </footer>
+            <div>
+              <label htmlFor="password">{t('password')}</label>
+              <input type="password" id="password" value={password} onChange={e => setPassword(e.target.value)} required className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary"/>
             </div>
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+            <Button type="submit" disabled={isLoggingIn}>{isLoggingIn ? t('loggingIn') : t('login')}</Button>
+          </form>
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600">
+              {t('dontHaveAccount')}{' '}
+              <button onClick={onGoToRegister} className="font-medium text-primary hover:underline">{t('createAStore')}</button>
+            </p>
+          </div>
         </div>
-    );
+      </div>
+      <Modal isOpen={show2FAModal} onClose={() => {}} title={t('twoFactorAuth')}>
+          <div className="space-y-4">
+              <p>{t('enter2FACode')}</p>
+              <input type="text" placeholder="123456" className="w-full p-2 border rounded"/>
+              <Button onClick={handle2FAConfirm}>{t('confirm')}</Button>
+          </div>
+      </Modal>
+    </div>
+  );
 };
 
 export default LoginScreen;
