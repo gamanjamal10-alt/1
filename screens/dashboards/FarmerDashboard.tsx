@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAppContext } from '../../hooks/useAppContext';
 import { useTranslations } from '../../hooks/useTranslations';
-import { Product, Order, OrderStatus, SubscriptionStatus, Store, HelpTopic } from '../../types';
+import { Product, Order, OrderStatus, SubscriptionStatus, Store, HelpTopic, ShippingRequest } from '../../types';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
@@ -10,6 +10,7 @@ import { PlusCircleIcon, EditIcon, BoxIcon, CartIcon, SettingsIcon, DashboardIco
 import DashboardLayout from '../../components/common/DashboardLayout';
 import ProfileSettingsScreen from '../ProfileSettingsScreen';
 import SubscriptionScreen from '../SubscriptionScreen';
+import OrderTrackingTimeline from '../../components/common/OrderTrackingTimeline';
 
 const StorePreview: React.FC<{ store: Store, products: Product[] }> = ({ store, products }) => {
     const t = useTranslations();
@@ -258,11 +259,12 @@ const CategoryManagementView = () => {
 };
 
 const FarmerDashboard: React.FC = () => {
-    const { currentStore, updateOrderStatus, products, orders, stores, showHelp, deleteProduct, isPreviewing } = useAppContext();
+    const { currentStore, updateOrderStatus, products, orders, stores, showHelp, deleteProduct, isPreviewing, shippingRequests } = useAppContext();
     const t = useTranslations();
     const [activeView, setActiveView] = useState('dashboard');
     const [modal, setModal] = useState<'add' | 'edit' | 'stock' | null>(null);
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+    const [trackingOrder, setTrackingOrder] = useState<Order | null>(null);
 
     const isExpired = currentStore?.subscriptionStatus === SubscriptionStatus.EXPIRED;
 
@@ -384,8 +386,10 @@ const FarmerDashboard: React.FC = () => {
                                         <p><span className="font-semibold">{t('paymentMethod')}:</span> {t(o.paymentMethod.replace(/\s/g, '').toLowerCase() as any)}</p>
                                         <p><span className="font-semibold">{t('status')}:</span> <span className="font-semibold">{o.orderStatus}</span></p>
                                     </div>
-                                    {o.orderStatus === OrderStatus.PENDING && (
-                                        <div className="p-4 bg-gray-50 border-t flex space-x-2 rtl:space-x-reverse">
+                                    <div className="p-4 bg-gray-50 border-t flex space-x-2 rtl:space-x-reverse">
+                                        <Button variant="secondary" className="!py-2" onClick={() => setTrackingOrder(o)}>{t('trackOrder')}</Button>
+                                        {o.orderStatus === OrderStatus.PENDING && (
+                                            <>
                                             <div className="flex items-center space-x-1">
                                                <Button variant="accent" onClick={() => handleUpdateStatus(o.orderId, OrderStatus.CONFIRMED)} disabled={isExpired}>{t('confirm')}</Button>
                                                 <button onClick={(e) => showHelp(HelpTopic.CONFIRM_ORDER, e.currentTarget)} className="text-gray-500 hover:text-primary"><QuestionMarkCircleIcon className="w-5 h-5"/></button>
@@ -394,8 +398,9 @@ const FarmerDashboard: React.FC = () => {
                                                 <Button variant="secondary" onClick={() => handleUpdateStatus(o.orderId, OrderStatus.CANCELLED)} disabled={isExpired}>{t('cancel')}</Button>
                                                 <button onClick={(e) => showHelp(HelpTopic.CANCEL_ORDER, e.currentTarget)} className="text-gray-500 hover:text-primary"><QuestionMarkCircleIcon className="w-5 h-5"/></button>
                                             </div>
-                                        </div>
-                                    )}
+                                            </>
+                                        )}
+                                    </div>
                                 </Card>
                             )})}
                         </div>
@@ -416,6 +421,9 @@ const FarmerDashboard: React.FC = () => {
                                         <h4 className="font-bold text-lg text-primary">{products.find(p=>p.productId === o.productId)?.productName}</h4>
                                         <p>{t('buyer')}: {buyerStore?.storeName}</p>
                                         <p>{t('status')}: <span className="font-semibold">{o.orderStatus}</span></p>
+                                        <div className="mt-4 pt-4 border-t">
+                                            <Button variant="secondary" className="!py-2" onClick={() => setTrackingOrder(o)}>{t('trackOrder')}</Button>
+                                        </div>
                                     </div>
                                 </Card>
                             )})}
@@ -468,6 +476,9 @@ const FarmerDashboard: React.FC = () => {
                     <StockForm product={selectedProduct} onClose={() => setModal(null)} />
                 </Modal>
             )}
+            <Modal isOpen={!!trackingOrder} onClose={() => setTrackingOrder(null)} title={t('orderTracking')}>
+                {trackingOrder && <OrderTrackingTimeline order={trackingOrder} shippingRequest={shippingRequests.find(sr => sr.orderId === trackingOrder.orderId)} />}
+            </Modal>
         </DashboardLayout>
     );
 };

@@ -227,6 +227,15 @@ export const translations = {
     assistantContext_wholesaler: 'You are an AI assistant for the "Souk El Fellah" marketplace. The user is a Wholesaler. You must only answer questions about the Wholesaler dashboard and its features. The dashboard has two roles: SELLER (managing their own products and orders) and BUYER (browsing a marketplace of farmer products and placing direct orders). The seller features are: a main dashboard overview, "Add/Manage Products", "Incoming Orders", "Manage Categories", and order history. The buyer features are: a "Marketplace", "My Purchases", and "Purchase History". Do not answer any other questions.',
     assistantContext_retailer: 'You are an AI assistant for the "Souk El Fellah" marketplace. The user is a Retailer. You must only answer questions about the Retailer dashboard and its features. The dashboard has two roles: SELLER (managing their own products and orders) and BUYER (browsing a marketplace of farmer products and placing direct orders). The seller features are: a main dashboard overview, "Add/Manage Products", "Incoming Orders", "Manage Categories", and order history. The buyer features are: a "Marketplace", "My Purchases", and "Purchase History". Do not answer any other questions.',
     assistantContext_transport: 'You are an AI assistant for the "Souk El Fellah" marketplace. The user runs a Transport company. You must only answer questions about the Transport dashboard and its features, which include: a list of "Available Delivery Requests" to accept, a list of their "Active Deliveries", a "Delivery History", and store settings. Do not answer any other questions.',
+    // Order Tracking
+    trackOrder: 'Track Order',
+    orderTracking: 'Order Tracking',
+    orderPlaced: 'Order Placed',
+    orderConfirmedBySeller: 'Order Confirmed by Seller',
+    shippingRequestCreated: 'Shipping Request Created',
+    driverAssigned: 'Driver Assigned',
+    onTheWay: 'On The Way',
+    delivered: 'Delivered',
   },
   fr: {
     currency: 'DZD',
@@ -455,6 +464,15 @@ export const translations = {
     assistantContext_wholesaler: "Vous êtes un assistant IA pour le marché « Souk El Fellah ». L'utilisateur est un grossiste. Vous devez uniquement répondre aux questions concernant le tableau de bord du grossiste et ses fonctionnalités. Le tableau de bord a deux rôles : VENDEUR (gérer ses propres produits et commandes) et ACHETEUR (parcourir un marché de produits d'agriculteurs et passer des commandes directes). Les fonctionnalités du vendeur sont : un aperçu du tableau de bord principal, « Ajouter/Gérer les Produits », « Commandes entrantes », « Gérer les catégories » et l'historique des commandes. Les fonctionnalités de l'acheteur sont : un « Marché », « Mes achats » et « Historique des Achats ». Ne répondez à aucune autre question.",
     assistantContext_retailer: "Vous êtes un assistant IA pour le marché « Souk El Fellah ». L'utilisateur est un détaillant. Vous devez uniquement répondre aux questions concernant le tableau de bord du détaillant et ses fonctionnalités. Le tableau de bord a deux rôles : VENDEUR (gérer ses propres produits et commandes) et ACHETEUR (parcourir un marché de produits d'agriculteurs et passer des commandes directes). Les fonctionnalités du vendeur sont : un aperçu du tableau de bord principal, « Ajouter/Gérer les Produits », « Commandes entrantes », « Gérer les catégories » et l'historique des commandes. Les fonctionnalités de l'acheteur sont : un « Marché », « Mes achats » et « Historique des Achats ». Ne répondez à aucune autre question.",
     assistantContext_transport: "Vous êtes un assistant IA pour le marché « Souk El Fellah ». L'utilisateur dirige une société de transport. Vous devez uniquement répondre aux questions concernant le tableau de bord du transporteur et ses fonctionnalités, qui comprennent : une liste de « Demandes de livraison disponibles » à accepter, une liste de ses « Livraisons actives », un « Historique des livraisons » et les paramètres de la boutique. Ne répondez à aucune autre question.",
+    // Order Tracking
+    trackOrder: 'Suivre la commande',
+    orderTracking: 'Suivi de commande',
+    orderPlaced: 'Commande passée',
+    orderConfirmedBySeller: 'Commande confirmée par le vendeur',
+    shippingRequestCreated: 'Demande d\'expédition créée',
+    driverAssigned: 'Chauffeur assigné',
+    onTheWay: 'En cours de livraison',
+    delivered: 'Livré',
   },
   ar: {
     currency: 'د.ج',
@@ -683,5 +701,14 @@ export const translations = {
     assistantContext_wholesaler: 'أنت مساعد ذكاء اصطناعي لسوق "سوق الفلاح". المستخدم هو تاجر جملة. يجب عليك فقط الإجابة على الأسئلة المتعلقة بلوحة تحكم تاجر الجملة وميزاتها. تحتوي لوحة التحكم على دوران: بائع (إدارة منتجاته وطلباته الخاصة) ومشترٍ (تصفح سوق منتجات المزارعين وتقديم الطلبات المباشرة). ميزات البائع هي: نظرة عامة على لوحة التحكم الرئيسية، "إضافة/إدارة المنتجات"، "الطلبات الواردة"، "إدارة الفئات"، وسجل الطلبات. ميزات المشتري هي: "السوق"، "مشترياتي"، و "سجل المشتريات". لا تجب على أي أسئلة أخرى.',
     assistantContext_retailer: 'أنت مساعد ذكاء اصطناعي لسوق "سوق الفلاح". المستخدم هو تاجر تجزئة. يجب عليك فقط الإجابة على الأسئلة المتعلقة بلوحة تحكم تاجر التجزئة وميزاتها. تحتوي لوحة التحكم على دوران: بائع (إدارة منتجاته وطلباته الخاصة) ومشترٍ (تصفح سوق منتجات المزارعين وتقديم الطلبات المباشرة). ميزات البائع هي: نظرة عامة على لوحة التحكم الرئيسية، "إضافة/إدارة المنتجات"، "الطلبات الواردة"، "إدارة الفئات"، وسجل الطلبات. ميزات المشتري هي: "السوق"، "مشترياتي"، و "سجل المشتريات". لا تجب على أي أسئلة أخرى.',
     assistantContext_transport: 'أنت مساعد ذكاء اصطناعي لسوق "سوق الفلاح". المستخدم يدير شركة نقل. يجب عليك فقط الإجابة على الأسئلة المتعلقة بلوحة تحكم النقل وميزاتها، والتي تشمل: قائمة "طلبات التوصيل المتاحة" للقبول، قائمة "توصيلاتي النشطة"، "سجل التوصيل"، وإعدادات المتجر. لا تجب على أي أسئلة أخرى.',
+    // Order Tracking
+    trackOrder: 'تتبع الطلب',
+    orderTracking: 'تتبع الطلب',
+    orderPlaced: 'تم تقديم الطلب',
+    orderConfirmedBySeller: 'تم تأكيد الطلب من قبل البائع',
+    shippingRequestCreated: 'تم إنشاء طلب الشحن',
+    driverAssigned: 'تم تعيين السائق',
+    onTheWay: 'في الطريق',
+    delivered: 'تم التوصيل',
   },
 };

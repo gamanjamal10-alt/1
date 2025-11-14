@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useMemo } from 'react';
+
+import React, { useState, useMemo } from 'react';
 import { useAppContext } from '../hooks/useAppContext';
 import { Order, OrderStatus, ShippingRequest, ShippingStatus } from '../types';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
-import { mockApi } from '../services/mockApi';
+import Modal from '../components/common/Modal';
 import { CalendarIcon, CheckCircleIcon, ClockIcon, TruckIcon, XCircleIcon } from '../components/icons';
 import { useTranslations } from '../hooks/useTranslations';
+import OrderTrackingTimeline from '../components/common/OrderTrackingTimeline';
 
 const StatusIcon: React.FC<{ status: OrderStatus | ShippingStatus }> = ({ status }) => {
     switch (status) {
@@ -28,25 +30,23 @@ const StatusIcon: React.FC<{ status: OrderStatus | ShippingStatus }> = ({ status
 };
 
 
-const OrderItem: React.FC<{ order: Order }> = ({ order }) => {
-    const { products, stores, createShippingRequest, refreshData } = useAppContext();
+const OrderItem: React.FC<{ order: Order, onTrackClick: (order: Order) => void }> = ({ order, onTrackClick }) => {
+    const { products, stores, createShippingRequest, shippingRequests } = useAppContext();
     const t = useTranslations();
-    const [shippingRequest, setShippingRequest] = useState<ShippingRequest | undefined>(undefined);
-
+    
     const product = products.find(p => p.productId === order.productId);
     const sellerStore = stores.find(s => s.storeId === order.sellerStoreId);
-    const buyerStore = stores.find(s => s.storeId === order.buyerStoreId);
     
-    useEffect(() => {
-        mockApi.getShippingRequestByOrder(order.orderId).then(setShippingRequest);
-    }, [order.orderId, refreshData]);
+    const shippingRequest = useMemo(() => 
+        shippingRequests.find(sr => sr.orderId === order.orderId), 
+    [shippingRequests, order.orderId]);
 
     const handleRequestShipping = async () => {
-        if (!sellerStore || !buyerStore) return;
+        if (!sellerStore || !order.buyerStoreId) return;
         await createShippingRequest({
             orderId: order.orderId,
             pickupAddress: sellerStore.address,
-            deliveryAddress: buyerStore.address,
+            deliveryAddress: order.customerAddress,
         });
         alert('Shipping request sent to all transport companies!');
     }
@@ -72,19 +72,12 @@ const OrderItem: React.FC<{ order: Order }> = ({ order }) => {
                     </div>
                 </div>
                 
-                {order.orderStatus === OrderStatus.CONFIRMED && (
-                    <div className="mt-4 pt-4 border-t">
-                        {shippingRequest ? (
-                             <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                                <StatusIcon status={shippingRequest.status} />
-                                <span>{t('shipping')}: {shippingRequest.status}</span>
-                                {shippingRequest.deliveryPrice && <span className="font-bold">{shippingRequest.deliveryPrice} {t('currency')}</span>}
-                            </div>
-                        ) : (
-                            <Button variant="secondary" onClick={handleRequestShipping}>{t('sendDeliveryRequest')}</Button>
-                        )}
-                    </div>
-                )}
+                <div className="mt-4 pt-4 border-t flex space-x-2">
+                    <Button variant="secondary" className="!py-2" onClick={() => onTrackClick(order)}>{t('trackOrder')}</Button>
+                    {order.orderStatus === OrderStatus.CONFIRMED && !shippingRequest && (
+                        <Button variant="accent" className="!py-2" onClick={handleRequestShipping}>{t('sendDeliveryRequest')}</Button>
+                    )}
+                </div>
 
             </div>
         </Card>
@@ -96,8 +89,9 @@ interface MyOrdersScreenProps {
 }
 
 const MyOrdersScreen: React.FC<MyOrdersScreenProps> = ({ orderFilter }) => {
-    const { currentStore, refreshData, orders } = useAppContext();
+    const { currentStore, orders, shippingRequests } = useAppContext();
     const t = useTranslations();
+    const [trackingOrder, setTrackingOrder] = useState<Order | null>(null);
 
     const myOrders = useMemo(() => {
         if (!currentStore) return [];
@@ -122,11 +116,14 @@ const MyOrdersScreen: React.FC<MyOrdersScreenProps> = ({ orderFilter }) => {
             <h2 className="text-3xl font-bold text-primary mb-6">{title}</h2>
             <div>
                 {filteredOrders.length > 0 ? (
-                    filteredOrders.map(order => <OrderItem key={order.orderId} order={order} />)
+                    filteredOrders.map(order => <OrderItem key={order.orderId} order={order} onTrackClick={setTrackingOrder} />)
                 ) : (
                     <p>{emptyMessage}</p>
                 )}
             </div>
+            <Modal isOpen={!!trackingOrder} onClose={() => setTrackingOrder(null)} title={t('orderTracking')}>
+                {trackingOrder && <OrderTrackingTimeline order={trackingOrder} shippingRequest={shippingRequests.find(sr => sr.orderId === trackingOrder.orderId)} />}
+            </Modal>
         </div>
     );
 };

@@ -26,3 +26,5 @@ export { default as TagIcon } from './TagIcon';
 export { default as TrashIcon } from './TrashIcon';
 export { default as EyeIcon } from './EyeIcon';
 export { default as SparklesIcon } from './SparklesIcon';
+export { default as PackageIcon } from './PackageIcon';
+export { default as ClipboardListIcon } from './ClipboardListIcon';
