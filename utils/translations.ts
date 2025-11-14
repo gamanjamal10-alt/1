@@ -158,6 +158,12 @@ export const translations = {
     primaryColor: 'Primary Color',
     secondaryColor: 'Secondary Color',
     accentColor: 'Accent Color',
+    // Photo upload
+    changePhoto: 'Change',
+    selectProfilePhoto: 'Select Profile Photo',
+    uploadFromDevice: 'Upload from device',
+    chooseAnAvatar: 'Or choose an avatar',
+    photoUpdatedSuccess: 'Profile photo updated successfully!',
     // Danger Zone
     dangerZone: 'Danger Zone',
     dangerZoneWarning: 'These actions are permanent and cannot be undone.',
@@ -327,6 +333,12 @@ export const translations = {
     primaryColor: 'Couleur Principale',
     secondaryColor: 'Couleur Secondaire',
     accentColor: 'Couleur d\'Accent',
+    // Photo upload
+    changePhoto: 'Changer',
+    selectProfilePhoto: 'Sélectionner une photo de profil',
+    uploadFromDevice: 'Télécharger depuis l\'appareil',
+    chooseAnAvatar: 'Ou choisir un avatar',
+    photoUpdatedSuccess: 'Photo de profil mise à jour avec succès !',
     // Danger Zone
     dangerZone: 'Zone de Danger',
     dangerZoneWarning: 'Ces actions sont permanentes et ne peuvent pas être annulées.',
@@ -496,6 +508,12 @@ export const translations = {
     primaryColor: 'اللون الأساسي',
     secondaryColor: 'اللون الثانوي',
     accentColor: 'لون التمييز',
+    // Photo upload
+    changePhoto: 'تغيير',
+    selectProfilePhoto: 'اختر صورة الملف الشخصي',
+    uploadFromDevice: 'تحميل من الجهاز',
+    chooseAnAvatar: 'أو اختر صورة رمزية',
+    photoUpdatedSuccess: 'تم تحديث صورة الملف الشخصي بنجاح!',
     // Danger Zone
     dangerZone: 'منطقة الخطر',
     dangerZoneWarning: 'هذه الإجراءات دائمة ولا يمكن التراجع عنها.',

@@ -7,10 +7,20 @@ import Button from '../components/common/Button';
 import LanguageSelector from '../components/common/LanguageSelector';
 import ColorPicker from '../components/common/ColorPicker';
 import Modal from '../components/common/Modal';
+import { UserRole } from '../types';
 
 interface StoreSettingsScreenProps {
     setActiveView: (view: string) => void;
 }
+
+const predefinedAvatars = [
+    'https://picsum.photos/seed/avatar1/200',
+    'https://picsum.photos/seed/avatar2/200',
+    'https://picsum.photos/seed/avatar3/200',
+    'https://picsum.photos/seed/avatar4/200',
+    'https://picsum.photos/seed/avatar5/200',
+    'https://picsum.photos/seed/avatar6/200',
+];
 
 const ProfileSettingsScreen: React.FC<StoreSettingsScreenProps> = ({ setActiveView }) => {
   const { currentUser, currentStore, updateStore, deleteStore, deleteUser } = useAppContext();
@@ -25,6 +35,7 @@ const ProfileSettingsScreen: React.FC<StoreSettingsScreenProps> = ({ setActiveVi
   const [themeColors, setThemeColors] = useState(currentStore?.themeColors || defaultColors);
   const [showDeleteStoreModal, setShowDeleteStoreModal] = useState(false);
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [confirmationText, setConfirmationText] = useState('');
 
 
@@ -67,6 +78,25 @@ const ProfileSettingsScreen: React.FC<StoreSettingsScreenProps> = ({ setActiveVi
        setConfirmationText('');
   };
 
+  const handlePhotoUpdate = async (newPhotoUrl: string) => {
+    await updateStore(currentStore.storeId, { profilePhoto: newPhotoUrl });
+    alert(t('photoUpdatedSuccess'));
+    setShowPhotoModal(false);
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        handlePhotoUpdate(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const isPhotoChangeAllowed = currentStore.storeType === UserRole.FARMER || currentStore.storeType === UserRole.RETAILER;
+
   return (
     <div>
       <h2 className="text-3xl font-bold text-primary mb-6">{t('storeSettings')}</h2>
@@ -75,7 +105,17 @@ const ProfileSettingsScreen: React.FC<StoreSettingsScreenProps> = ({ setActiveVi
       <Card className="max-w-3xl mb-8">
         <div className="p-6 space-y-4">
           <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 rtl:sm:space-x-reverse">
-            <img src={currentStore.profilePhoto} alt={currentStore.storeName} className="w-24 h-24 rounded-full object-cover"/>
+            <div className="relative group">
+                <img src={currentStore.profilePhoto} alt={currentStore.storeName} className="w-24 h-24 rounded-full object-cover"/>
+                {isPhotoChangeAllowed && (
+                    <button 
+                        onClick={() => setShowPhotoModal(true)}
+                        className="absolute inset-0 w-full h-full bg-black bg-opacity-50 rounded-full flex items-center justify-center text-white text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                        {t('changePhoto')}
+                    </button>
+                )}
+            </div>
             <div>
               <h3 className="text-2xl font-bold text-primary">{currentStore.storeName}</h3>
               <p className="text-gray-600">{currentUser.fullName}</p>
@@ -142,6 +182,25 @@ const ProfileSettingsScreen: React.FC<StoreSettingsScreenProps> = ({ setActiveVi
             <p>{t('deleteAccountConfirmation', { fullName: currentUser.fullName })}</p>
             <input type="text" placeholder={t('typeToConfirm')} value={confirmationText} onChange={(e) => setConfirmationText(e.target.value)} className="w-full p-2 border rounded"/>
             <Button onClick={handleDeleteAccount} className="!bg-red-600 hover:!bg-red-800" disabled={confirmationText !== currentUser.fullName}>{t('confirmDelete')}</Button>
+        </div>
+      </Modal>
+
+      <Modal isOpen={showPhotoModal} onClose={() => setShowPhotoModal(false)} title={t('selectProfilePhoto')}>
+        <div className="space-y-6">
+            <div>
+                <label htmlFor="photo-upload" className="block text-lg font-semibold text-primary mb-2">{t('uploadFromDevice')}</label>
+                <input id="photo-upload" type="file" accept="image/*" onChange={handleFileUpload} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-blue-800"/>
+            </div>
+            <div>
+                 <h4 className="text-lg font-semibold text-primary mb-2">{t('chooseAnAvatar')}</h4>
+                 <div className="grid grid-cols-3 gap-4">
+                    {predefinedAvatars.map(avatar => (
+                        <button key={avatar} onClick={() => handlePhotoUpdate(avatar)} className="rounded-full overflow-hidden border-2 border-transparent hover:border-accent focus:border-accent focus:outline-none transition">
+                            <img src={avatar} alt="Avatar" className="w-full h-full object-cover"/>
+                        </button>
+                    ))}
+                 </div>
+            </div>
         </div>
       </Modal>
 
