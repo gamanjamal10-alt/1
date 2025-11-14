@@ -42,6 +42,7 @@ const CreateStoreScreen: React.FC<CreateStoreScreenProps> = ({ onStoreCreated })
           userId: currentUser.userId,
           storeName: formData.storeName,
           storeType: formData.storeType,
+          country: formData.country,
           wilaya: formData.country === 'Algeria' ? formData.wilaya : undefined,
       });
       alert('Store created successfully!');

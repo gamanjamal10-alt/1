@@ -85,7 +85,7 @@ const ProfileSettingsScreen: React.FC<StoreSettingsScreenProps> = ({ setActiveVi
               <div><strong className="block text-gray-500">{t('storeType')}</strong> {currentStore.storeType}</div>
               <div><strong className="block text-gray-500">{t('email')}</strong> {currentUser.email}</div>
               <div><strong className="block text-gray-500">{t('phone')}</strong>{currentUser.phone}</div>
-              <div><strong className="block text-gray-500">{t('country')}</strong> {currentUser.country}</div>
+              <div><strong className="block text-gray-500">{t('country')}</strong> {currentStore.country}</div>
                {currentStore.wilaya && <div><strong className="block text-gray-500">{t('wilaya')}</strong> {currentStore.wilaya}</div>}
               <div><strong className="block text-gray-500">{t('memberSince')}</strong> {currentStore.createdAt}</div>
               <div>

@@ -70,6 +70,7 @@ export interface Store {
     userId: string;
     storeName: string;
     storeType: UserRole;
+    country: string;
     wilaya?: string;
     createdAt: string;
     status: StoreStatus;
