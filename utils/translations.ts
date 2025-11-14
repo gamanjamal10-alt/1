@@ -1,4 +1,3 @@
-
 export const translations = {
   en: {
     soukElFellah: 'Souk El Fellah – Farmers Marketplace',
@@ -146,6 +145,12 @@ export const translations = {
     myOrderHistory: 'My Order History',
     noActiveOrders: 'You have no active orders.',
     noPastOrders: 'You have no past orders.',
+    // New
+    edit: 'Edit',
+    confirmStockUpdate: 'Are you sure you want to update the stock for {{productName}} to {{quantity}} kg?',
+    currentStock: 'Current Stock',
+    newStockQuantity: 'New Stock Quantity',
+    invalidQuantity: 'Please enter a valid, non-negative quantity.',
   },
   fr: {
     soukElFellah: 'Souk El Fellah – Marché des Agriculteurs',
@@ -293,6 +298,12 @@ export const translations = {
     myOrderHistory: 'Historique de mes commandes',
     noActiveOrders: 'Vous n\'avez aucune commande active.',
     noPastOrders: 'Vous n\'avez aucune commande passée.',
+    // New
+    edit: 'Modifier',
+    confirmStockUpdate: "Êtes-vous sûr de vouloir mettre à jour le stock de {{productName}} à {{quantity}} kg ?",
+    currentStock: 'Stock actuel',
+    newStockQuantity: 'Nouvelle quantité de stock',
+    invalidQuantity: 'Veuillez saisir une quantité valide et non négative.',
   },
   ar: {
     soukElFellah: 'سوق الفلاح – سوق المزارعين',
@@ -440,5 +451,11 @@ export const translations = {
     myOrderHistory: 'سجل طلباتي',
     noActiveOrders: 'ليس لديك طلبات نشطة.',
     noPastOrders: 'ليس لديك طلبات سابقة.',
+    // New
+    edit: 'تعديل',
+    confirmStockUpdate: 'هل أنت متأكد أنك تريد تحديث مخزون {{productName}} إلى {{quantity}} كجم؟',
+    currentStock: 'المخزون الحالي',
+    newStockQuantity: 'كمية المخزون الجديدة',
+    invalidQuantity: 'الرجاء إدخال كمية صالحة وغير سلبية.',
   },
 };
