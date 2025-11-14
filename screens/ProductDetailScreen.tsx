@@ -1,27 +1,37 @@
 
 import React, { useState } from 'react';
 import { useAppContext } from '../hooks/useAppContext';
-import { Product, OrderType, SubscriptionStatus } from '../types';
+import { Product, OrderType, SubscriptionStatus, PaymentMethod } from '../types';
 import Button from '../components/common/Button';
 import Modal from '../components/common/Modal';
-import { PhoneIcon, WhatsAppIcon, ChevronLeftIcon, BoxIcon, MapPinIcon, ShoppingCartIcon } from '../components/icons';
+import { PhoneIcon, WhatsAppIcon, ChevronLeftIcon, BoxIcon, MapPinIcon, CartIcon } from '../components/icons';
 import { useTranslations } from '../hooks/useTranslations';
+import { algerianWilayas } from '../utils/wilayas';
 
-const AddToCartForm: React.FC<{product: Product, orderType: OrderType, onClose: () => void}> = ({ product, orderType, onClose }) => {
-    const { currentStore, addToCart } = useAppContext();
+const OrderForm: React.FC<{product: Product, orderType: OrderType, onClose: () => void}> = ({ product, orderType, onClose }) => {
+    const { currentStore, currentUser, placeOrder } = useAppContext();
     const t = useTranslations();
     
+    const [step, setStep] = useState(1);
     const [quantity, setQuantity] = useState(orderType === OrderType.WHOLESALE ? product.minimumOrderQuantity : 1);
+    const [notes, setNotes] = useState('');
+     const [checkoutDetails, setCheckoutDetails] = useState({
+        customerFullName: currentUser?.fullName || '',
+        customerPhone: currentUser?.phone || '',
+        customerWilaya: currentStore?.wilaya || '',
+        customerAddress: currentStore?.address || '',
+        paymentMethod: PaymentMethod.COD
+    });
     
     const price = orderType === OrderType.WHOLESALE ? product.wholesalePrice : product.retailPrice;
     const minQty = orderType === OrderType.WHOLESALE ? product.minimumOrderQuantity : 1;
     const isExpired = currentStore?.subscriptionStatus === SubscriptionStatus.EXPIRED;
 
-    const handleAddToCart = () => {
-        if (isExpired) {
-            alert(t('subscriptionExpiredError'));
-            return;
-        }
+    const handleDetailsChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+        setCheckoutDetails({ ...checkoutDetails, [e.target.name]: e.target.value });
+    };
+
+    const handleContinue = () => {
         if (quantity < minQty) {
             alert(t('minOrderError', { minQty: minQty.toString() }));
             return;
@@ -30,30 +40,87 @@ const AddToCartForm: React.FC<{product: Product, orderType: OrderType, onClose: 
             alert(t('stockError', { stock: product.stockQuantity.toString() }));
             return;
         }
-        addToCart(product.productId, quantity);
-        alert(t('addedToCart', { quantity: quantity.toString(), productName: product.productName }));
-        onClose();
+        setStep(2);
+    }
+
+    const handlePlaceOrder = async () => {
+        if (!currentStore || !currentUser) return;
+
+        try {
+            await placeOrder({
+                productId: product.productId,
+                buyerStoreId: currentStore.storeId,
+                sellerStoreId: product.storeId,
+                orderType,
+                quantity,
+                notes,
+                ...checkoutDetails
+            });
+            alert(t('orderSuccess'));
+            onClose();
+        } catch (error) {
+            alert(`${t('orderError')}: ${error}`);
+        }
     }
     
     return (
         <div className="space-y-4">
-            <div>
-                <label htmlFor="quantity" className="block font-semibold mb-1">{t('quantity')} (kg)</label>
-                <input
-                    type="number"
-                    id="quantity"
-                    value={quantity}
-                    onChange={e => setQuantity(parseInt(e.target.value) || 0)}
-                    min={minQty}
-                    max={product.stockQuantity}
-                    className="w-full p-2 border rounded"
-                />
-                <p className="text-sm text-gray-500 mt-1">Min: {minQty} kg</p>
-            </div>
-            <div className="text-2xl font-bold text-end">
-                {t('total')}: <span className="text-accent">{(quantity * price).toFixed(2)} {t('currency')}</span>
-            </div>
-            <Button onClick={handleAddToCart} disabled={isExpired} Icon={ShoppingCartIcon}>{t('addToCart')}</Button>
+            {step === 1 && (
+                <>
+                    <div>
+                        <label htmlFor="quantity" className="block font-semibold mb-1">{t('quantity')} (kg)</label>
+                        <input
+                            type="number"
+                            id="quantity"
+                            value={quantity}
+                            onChange={e => setQuantity(parseInt(e.target.value) || 0)}
+                            min={minQty}
+                            max={product.stockQuantity}
+                            className="w-full p-2 border rounded"
+                        />
+                        <p className="text-sm text-gray-500 mt-1">Min: {minQty} kg</p>
+                    </div>
+                     <div>
+                        <label htmlFor="notes" className="block font-semibold mb-1">{t('notes')} ({t('optional')})</label>
+                        <textarea
+                            id="notes"
+                            value={notes}
+                            onChange={e => setNotes(e.target.value)}
+                            placeholder={t('specialRequests')}
+                            className="w-full p-2 border rounded"
+                            rows={2}
+                        />
+                    </div>
+                    <div className="text-2xl font-bold text-end">
+                        {t('total')}: <span className="text-accent">{(quantity * price).toFixed(2)} {t('currency')}</span>
+                    </div>
+                    <Button onClick={handleContinue} disabled={isExpired}>{t('continueToCheckout')}</Button>
+                </>
+            )}
+            {step === 2 && (
+                 <>
+                    <input type="text" name="customerFullName" placeholder={t('fullName')} value={checkoutDetails.customerFullName} onChange={handleDetailsChange} className="w-full p-2 border rounded" required />
+                    <input type="tel" name="customerPhone" placeholder={t('phone')} value={checkoutDetails.customerPhone} onChange={handleDetailsChange} className="w-full p-2 border rounded" required />
+                    <select name="customerWilaya" value={checkoutDetails.customerWilaya} onChange={handleDetailsChange} required className="w-full p-2 border rounded">
+                        <option value="" disabled>{t('wilaya')}</option>
+                        {algerianWilayas.map(w => <option key={w} value={w}>{w}</option>)}
+                    </select>
+                    <textarea name="customerAddress" placeholder={t('fullAddress')} value={checkoutDetails.customerAddress} onChange={handleDetailsChange} className="w-full p-2 border rounded" rows={2} required></textarea>
+                    
+                    <div>
+                         <label className="block font-semibold mb-1">{t('paymentMethod')}</label>
+                         <select name="paymentMethod" value={checkoutDetails.paymentMethod} onChange={handleDetailsChange} className="w-full p-2 border rounded">
+                            <option value={PaymentMethod.COD}>{t('cashondelivery')}</option>
+                            <option value={PaymentMethod.BARIDIMOB}>{t('baridimob')}</option>
+                            <option value={PaymentMethod.CCP}>{t('ccp')}</option>
+                         </select>
+                    </div>
+                    <div className="flex space-x-2">
+                        <Button variant="secondary" onClick={() => setStep(1)}>{t('back')}</Button>
+                        <Button onClick={handlePlaceOrder}>{t('completeOrder')}</Button>
+                    </div>
+                </>
+            )}
         </div>
     )
 }
@@ -113,12 +180,12 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ productId, on
                         </div>
                     </div>
 
-                    <Button onClick={() => setOrderModalOpen(true)} disabled={isExpired} Icon={ShoppingCartIcon}>{t('addToCart')}</Button>
+                    <Button onClick={() => setOrderModalOpen(true)} disabled={isExpired} Icon={CartIcon}>{t('order')}</Button>
                 </div>
             </div>
 
-            <Modal isOpen={isOrderModalOpen} onClose={() => setOrderModalOpen(false)} title={`${t('addToCart')}: ${product.productName}`}>
-                <AddToCartForm product={product} orderType={orderType} onClose={() => setOrderModalOpen(false)} />
+            <Modal isOpen={isOrderModalOpen} onClose={() => setOrderModalOpen(false)} title={`${t('order')}: ${product.productName}`}>
+                <OrderForm product={product} orderType={orderType} onClose={() => setOrderModalOpen(false)} />
             </Modal>
         </div>
     );

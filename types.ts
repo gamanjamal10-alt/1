@@ -159,8 +159,3 @@ export interface ShippingRequest {
   status: ShippingStatus;
   date: string;
 }
-
-export interface CartItem {
-  productId: string;
-  quantity: number;
-}

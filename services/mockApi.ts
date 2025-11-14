@@ -134,69 +134,11 @@ let subscriptions: Subscription[] = [
 ];
 
 
-let products: Product[] = [
-  {
-    productId: 'prod1',
-    productName: 'Organic Tomatoes',
-    category: 'Vegetables',
-    wholesalePrice: 120,
-    retailPrice: 180,
-    minimumOrderQuantity: 100, // kg
-    stockQuantity: 5000,
-    photos: ['https://picsum.photos/seed/tomato1/800/600', 'https://picsum.photos/seed/tomato2/800/600'],
-    description: 'Fresh, juicy organic tomatoes grown in the fertile lands of Médéa. Perfect for salads, sauces, and cooking.',
-    storeId: 'store1',
-    productLocation: 'Médéa',
-    dateAdded: '2023-10-01',
-  },
-  {
-    productId: 'prod2',
-    productName: 'Mitidja Oranges',
-    category: 'Fruits',
-    wholesalePrice: 80,
-    retailPrice: 120,
-    minimumOrderQuantity: 200, // kg
-    stockQuantity: 10000,
-    photos: ['https://picsum.photos/seed/orange1/800/600', 'https://picsum.photos/seed/orange2/800/600'],
-    description: 'Sweet and flavorful oranges from the Mitidja plains. High in Vitamin C.',
-    storeId: 'store1',
-    productLocation: 'Blida',
-    dateAdded: '2023-10-05',
-  },
-];
+let products: Product[] = [];
 
-let orders: Order[] = [
-    {
-        orderId: 'order1',
-        productId: 'prod1',
-        buyerStoreId: 'store2',
-        sellerStoreId: 'store1',
-        orderType: OrderType.WHOLESALE,
-        quantity: 250,
-        totalPrice: 30000,
-        orderStatus: OrderStatus.CONFIRMED,
-        notes: 'Need delivery to Algiers.',
-        date: '2023-10-10',
-        customerFullName: 'Fatima Zahra',
-        customerPhone: '213623456789',
-        customerWilaya: '16 - Alger',
-        customerAddress: '123 Rue Didouche Mourad, Algiers',
-        paymentMethod: PaymentMethod.COD,
-    }
-];
+let orders: Order[] = [];
 
-let shippingRequests: ShippingRequest[] = [
-    {
-        requestId: 'req1',
-        orderId: 'order1',
-        pickupAddress: 'Route Nationale 1, Médéa',
-        deliveryAddress: '123 Rue Didouche Mourad, Algiers',
-        deliveryPrice: 8000,
-        transportStoreId: 'store4',
-        status: ShippingStatus.ACCEPTED,
-        date: '2023-10-11'
-    }
-];
+let shippingRequests: ShippingRequest[] = [];
 
 const subscriptionPlans: SubscriptionPlan[] = [
     {

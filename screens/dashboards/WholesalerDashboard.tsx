@@ -6,13 +6,13 @@ import { Product, Order, OrderStatus, SubscriptionStatus, Store, HelpTopic, User
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
-import { PlusCircleIcon, EditIcon, BoxIcon, CartIcon, SettingsIcon, DashboardIcon, HistoryIcon, QuestionMarkCircleIcon, PhoneIcon, WhatsAppIcon, TagIcon, TrashIcon, EyeIcon, HomeIcon, ShoppingCartIcon } from '../../components/icons';
+import { PlusCircleIcon, EditIcon, BoxIcon, CartIcon, SettingsIcon, DashboardIcon, HistoryIcon, QuestionMarkCircleIcon, PhoneIcon, WhatsAppIcon, TagIcon, TrashIcon, EyeIcon, HomeIcon } from '../../components/icons';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import ProfileSettingsScreen from '../ProfileSettingsScreen';
 import SubscriptionScreen from '../SubscriptionScreen';
-import BuyerMarketplace from './components/BuyerMarketplace';
-import CartScreen from './components/CartScreen';
 import MyOrdersScreen from '../MyOrdersScreen';
+import BuyerDashboard from './BuyerDashboard';
+import ProductDetailScreen from '../ProductDetailScreen';
 
 const StorePreview: React.FC<{ store: Store, products: Product[] }> = ({ store, products }) => {
     const t = useTranslations();
@@ -261,18 +261,12 @@ const CategoryManagementView = () => {
 };
 
 const WholesalerDashboard: React.FC = () => {
-    const { currentStore, updateOrderStatus, products, orders, stores, showHelp, deleteProduct, isPreviewing, viewToNavigate, clearDashboardNavigation } = useAppContext();
+    const { currentStore, updateOrderStatus, products, orders, stores, showHelp, deleteProduct, isPreviewing } = useAppContext();
     const t = useTranslations();
     const [activeView, setActiveView] = useState('dashboard');
     const [modal, setModal] = useState<'add' | 'edit' | 'stock' | null>(null);
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-
-    useEffect(() => {
-        if (viewToNavigate) {
-            setActiveView(viewToNavigate);
-            clearDashboardNavigation();
-        }
-    }, [viewToNavigate, clearDashboardNavigation]);
+    const [marketplaceView, setMarketplaceView] = useState<{view: 'list' | 'detail', productId: string | null}>({view: 'list', productId: null});
 
     const isExpired = currentStore?.subscriptionStatus === SubscriptionStatus.EXPIRED;
 
@@ -287,8 +281,8 @@ const WholesalerDashboard: React.FC = () => {
     const navItems = [
         { label: 'dashboard', view: 'dashboard', icon: DashboardIcon },
         { label: 'marketplace', view: 'marketplace', icon: HomeIcon },
-        { label: 'cart', view: 'cart', icon: ShoppingCartIcon },
         { label: 'myPurchases', view: 'purchases', icon: CartIcon },
+        { label: 'purchaseHistory', view: 'purchaseHistory', icon: HistoryIcon },
         { label: 'myProducts', view: 'products', icon: BoxIcon },
         { label: 'myOrders', view: 'orders', icon: CartIcon },
         { label: 'manageCategories', view: 'categories', icon: TagIcon },
@@ -333,11 +327,14 @@ const WholesalerDashboard: React.FC = () => {
     const renderView = () => {
         switch (activeView) {
             case 'marketplace':
-                return <BuyerMarketplace role={UserRole.WHOLESALER} onSelectProduct={() => {}}/>;
-            case 'cart':
-                return <CartScreen />;
+                if (marketplaceView.view === 'detail' && marketplaceView.productId) {
+                    return <ProductDetailScreen productId={marketplaceView.productId} onBack={() => setMarketplaceView({view: 'list', productId: null})} />
+                }
+                return <BuyerDashboard role={UserRole.WHOLESALER} onSelectProduct={(id) => setMarketplaceView({view: 'detail', productId: id})}/>;
             case 'purchases':
                 return <MyOrdersScreen orderFilter="active" />;
+            case 'purchaseHistory':
+                return <MyOrdersScreen orderFilter="history" />;
             case 'products':
                 return (
                     <div>
