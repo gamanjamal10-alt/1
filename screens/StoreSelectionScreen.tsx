@@ -47,14 +47,16 @@ const StoreSelectionScreen: React.FC = () => {
                             <h1 className="text-3xl md:text-4xl font-bold text-primary">{t('yourStores')}</h1>
                             <p className="text-lg text-gray-700">{t('selectStore')}</p>
                         </div>
-                        <Button
-                            variant="accent"
-                            onClick={() => setIsCreating(true)}
-                            className="w-auto"
-                            Icon={PlusCircleIcon}
-                        >
-                            {t('createAStore')}
-                        </Button>
+                        {userStores.length > 0 && userStores.length < 4 && (
+                            <Button
+                                variant="accent"
+                                onClick={() => setIsCreating(true)}
+                                className="w-auto"
+                                Icon={PlusCircleIcon}
+                            >
+                                {t('createAStore')}
+                            </Button>
+                        )}
                     </div>
                     {userStores.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -66,7 +68,7 @@ const StoreSelectionScreen: React.FC = () => {
                         <div className="text-center bg-white p-10 rounded-lg shadow">
                             <h2 className="text-2xl font-semibold text-gray-800">{t('noStoresFound')}</h2>
                             <p className="text-gray-500 mt-2 mb-6">It looks like you haven't created any stores yet. Let's get your first one set up!</p>
-                            <Button onClick={() => setIsCreating(true)} className="w-auto mx-auto">{t('createAStore')}</Button>
+                            <Button onClick={() => setIsCreating(true)} className="w-auto mx-auto" Icon={PlusCircleIcon}>{t('createAStore')}</Button>
                         </div>
                     )}
                 </div>
