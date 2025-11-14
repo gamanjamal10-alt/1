@@ -41,6 +41,7 @@ interface AppContextType {
   setLanguage: (lang: Language) => void;
   addProduct: (product: Omit<Product, 'productId' | 'dateAdded'>) => Promise<void>;
   updateProduct: (productId: string, updatedData: Partial<Product>) => Promise<void>;
+  deleteProduct: (productId: string) => Promise<void>;
   placeOrder: (orderData: Omit<Order, 'orderId' | 'date' | 'orderStatus' | 'totalPrice'>) => Promise<void>;
   updateOrderStatus: (orderId: string, status: OrderStatus) => Promise<void>;
   createShippingRequest: (requestData: Omit<ShippingRequest, 'requestId' | 'date' | 'status' | 'deliveryPrice' | 'transportStoreId'>) => Promise<void>;
@@ -214,6 +215,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
+  const deleteProduct = async (productId: string) => {
+    await mockApi.deleteProduct(productId);
+    setProducts(prev => prev.filter(p => p.productId !== productId));
+    setOrders(prev => prev.filter(o => o.productId !== productId));
+  };
+
   const placeOrder = async (orderData: Omit<Order, 'orderId' | 'date' | 'orderStatus' | 'totalPrice'>) => {
     const newOrder = await mockApi.createOrder(orderData);
     setOrders(prev => [...prev, newOrder]);
@@ -317,6 +324,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setLanguage,
     addProduct,
     updateProduct,
+    deleteProduct,
     placeOrder,
     updateOrderStatus,
     createShippingRequest,

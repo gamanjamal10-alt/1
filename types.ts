@@ -123,7 +123,7 @@ export interface Product {
   retailPrice: number;
   minimumOrderQuantity: number;
   stockQuantity: number;
-  photos: string[];
+  photos: string[]; // Array of Base64 encoded images
   description: string;
   storeId: string; // Changed from farmerId
   productLocation: string;

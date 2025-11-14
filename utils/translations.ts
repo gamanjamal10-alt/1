@@ -72,6 +72,8 @@ export const translations = {
     retailerControlPanel: 'Retailer Control Panel',
     transportCompanyPanel: 'Transport Company Panel',
     wholesalerDashboard: 'Wholesaler Dashboard',
+    backToDashboard: 'Back to Dashboard',
+    viewStore: 'View Store',
     // Farmer
     products: 'Products',
     totalProductsListed: 'Total products listed',
@@ -83,6 +85,8 @@ export const translations = {
     editProduct: 'Edit Product',
     addNewProduct: 'Add New Product',
     updateProduct: 'Update Product',
+    deleteProduct: 'Delete Product',
+    deleteProductConfirm: 'Are you sure you want to delete this product? This action cannot be undone.',
     productName: 'Product Name',
     wholesalePrice: 'Wholesale Price ({{currency}})',
     retailPrice: 'Retail Price ({{currency}})',
@@ -97,6 +101,7 @@ export const translations = {
     contact: 'Contact',
     add: 'Add',
     delete: 'Delete',
+    productImages: 'Product Images',
     // Category Management
     manageCategories: 'Manage Categories',
     addCategory: 'Add Category',
@@ -287,6 +292,8 @@ export const translations = {
     retailerControlPanel: 'Panneau de Contrôle Détaillant',
     transportCompanyPanel: 'Panneau de Contrôle Transporteur',
     wholesalerDashboard: 'Tableau de bord Grossiste',
+    backToDashboard: 'Retour au tableau de bord',
+    viewStore: 'Voir la boutique',
     // Farmer
     products: 'Produits',
     totalProductsListed: 'Total des produits listés',
@@ -298,6 +305,8 @@ export const translations = {
     editProduct: 'Modifier le produit',
     addNewProduct: 'Ajouter un nouveau produit',
     updateProduct: 'Mettre à jour le produit',
+    deleteProduct: 'Supprimer le produit',
+    deleteProductConfirm: 'Êtes-vous sûr de vouloir supprimer ce produit ? Cette action est irréversible.',
     productName: 'Nom du produit',
     wholesalePrice: 'Prix de gros ({{currency}})',
     retailPrice: 'Prix de détail ({{currency}})',
@@ -312,6 +321,7 @@ export const translations = {
     contact: 'Contact',
     add: 'Ajouter',
     delete: 'Supprimer',
+    productImages: 'Images du produit',
     // Category Management
     manageCategories: 'Gérer les catégories',
     addCategory: 'Ajouter une catégorie',
@@ -502,6 +512,8 @@ export const translations = {
     retailerControlPanel: 'لوحة تحكم تاجر التجزئة',
     transportCompanyPanel: 'لوحة تحكم شركة النقل',
     wholesalerDashboard: 'لوحة تحكم تاجر الجملة',
+    backToDashboard: 'العودة إلى لوحة التحكم',
+    viewStore: 'عرض المتجر',
     // Farmer
     products: 'المنتجات المتوفرة',
     totalProductsListed: 'إجمالي المنتجات المدرجة',
@@ -513,6 +525,8 @@ export const translations = {
     editProduct: 'تعديل المنتج',
     addNewProduct: 'إضافة منتج جديد',
     updateProduct: 'تحديث المنتج',
+    deleteProduct: 'حذف المنتج',
+    deleteProductConfirm: 'هل أنت متأكد من رغبتك في حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء.',
     productName: 'اسم المنتج',
     wholesalePrice: 'سعر الجملة ({{currency}})',
     retailPrice: 'سعر التجزئة ({{currency}})',
@@ -527,6 +541,7 @@ export const translations = {
     contact: 'الاتصال',
     add: 'إضافة',
     delete: 'حذف',
+    productImages: 'صور المنتج',
     // Category Management
     manageCategories: 'إدارة الفئات',
     addCategory: 'إضافة فئة',

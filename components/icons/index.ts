@@ -23,3 +23,5 @@ export { default as SettingsIcon } from './SettingsIcon';
 export { default as LanguageIcon } from './LanguageIcon';
 export { default as QuestionMarkCircleIcon } from './QuestionMarkCircleIcon';
 export { default as TagIcon } from './TagIcon';
+export { default as TrashIcon } from './TrashIcon';
+export { default as EyeIcon } from './EyeIcon';

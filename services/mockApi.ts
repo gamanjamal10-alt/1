@@ -342,6 +342,12 @@ export const mockApi = {
     });
     return Promise.resolve(updatedProduct);
   },
+  deleteProduct: async (productId: string): Promise<boolean> => {
+    const initialLength = products.length;
+    products = products.filter(p => p.productId !== productId);
+    orders = orders.filter(o => o.productId !== productId);
+    return Promise.resolve(products.length < initialLength);
+  },
 
   // ORDER
   getOrders: async (): Promise<Order[]> => Promise.resolve(orders),

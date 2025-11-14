@@ -6,10 +6,31 @@ import { Product, Order, OrderStatus, SubscriptionStatus, Store, HelpTopic } fro
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
-import { PlusCircleIcon, EditIcon, BoxIcon, CartIcon, SettingsIcon, DashboardIcon, HistoryIcon, QuestionMarkCircleIcon, PhoneIcon, WhatsAppIcon, TagIcon } from '../../components/icons';
+import { PlusCircleIcon, EditIcon, BoxIcon, CartIcon, SettingsIcon, DashboardIcon, HistoryIcon, QuestionMarkCircleIcon, PhoneIcon, WhatsAppIcon, TagIcon, TrashIcon, EyeIcon } from '../../components/icons';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import ProfileSettingsScreen from '../ProfileSettingsScreen';
 import SubscriptionScreen from '../SubscriptionScreen';
+
+const StorePreview: React.FC<{ store: Store, products: Product[] }> = ({ store, products }) => {
+    const t = useTranslations();
+    return (
+        <div>
+            <h3 className="text-2xl font-semibold text-primary mb-4">{store.storeName}</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {products.map(product => (
+                    <Card key={product.productId}>
+                        <img src={product.photos[0] || 'https://picsum.photos/800/600'} alt={product.productName} className="w-full h-48 object-cover" />
+                        <div className="p-4">
+                            <h3 className="text-xl font-bold text-primary">{product.productName}</h3>
+                            <p className="text-gray-500 text-sm mb-2">{product.category}</p>
+                            <p className="text-2xl font-black text-accent mb-2">{product.retailPrice} <span className="text-base font-normal text-gray-600">{t('currency')} / kg</span></p>
+                        </div>
+                    </Card>
+                ))}
+            </div>
+        </div>
+    );
+};
 
 const ProductForm: React.FC<{ onClose: () => void; productToEdit?: Product | null; storeCategories: string[] }> = ({ onClose, productToEdit, storeCategories }) => {
     const { addProduct, updateProduct, currentStore } = useAppContext();
@@ -22,9 +43,27 @@ const ProductForm: React.FC<{ onClose: () => void; productToEdit?: Product | nul
         minOrder: productToEdit?.minimumOrderQuantity.toString() || '',
         desc: productToEdit?.description || '',
     });
+    const [photos, setPhotos] = useState<string[]>(productToEdit?.photos || []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const files = Array.from(e.target.files);
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setPhotos(prev => [...prev, reader.result as string]);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+    };
+    
+    const removePhoto = (index: number) => {
+        setPhotos(prev => prev.filter((_, i) => i !== index));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -39,7 +78,7 @@ const ProductForm: React.FC<{ onClose: () => void; productToEdit?: Product | nul
             minimumOrderQuantity: parseInt(formData.minOrder),
             description: formData.desc,
             stockQuantity: productToEdit?.stockQuantity || 0, // Stock is managed separately
-            photos: productToEdit?.photos || [`https://picsum.photos/seed/${formData.name.replace(/\s/g, '')}/800/600`],
+            photos: photos.length > 0 ? photos : [`https://picsum.photos/seed/${formData.name.replace(/\s/g, '')}/800/600`],
             storeId: currentStore.storeId,
             productLocation: currentStore.address,
         };
@@ -53,7 +92,7 @@ const ProductForm: React.FC<{ onClose: () => void; productToEdit?: Product | nul
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto p-1">
             <input type="text" name="name" placeholder={t('productName')} value={formData.name} onChange={handleChange} className="w-full p-2 border rounded" required />
             <select name="category" value={formData.category} onChange={handleChange} className="w-full p-2 border rounded">
                 {storeCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
@@ -62,6 +101,20 @@ const ProductForm: React.FC<{ onClose: () => void; productToEdit?: Product | nul
             <input type="number" name="rPrice" placeholder={t('retailPrice')} value={formData.rPrice} onChange={handleChange} className="w-full p-2 border rounded" required />
             <input type="number" name="minOrder" placeholder={t('minOrderQty')} value={formData.minOrder} onChange={handleChange} className="w-full p-2 border rounded" required />
             <textarea name="desc" placeholder={t('description')} value={formData.desc} onChange={handleChange} className="w-full p-2 border rounded" rows={3} required></textarea>
+            
+            <div>
+                <label className="block font-semibold mb-2 text-gray-700">{t('productImages')}</label>
+                <input type="file" multiple accept="image/*" onChange={handlePhotoUpload} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-blue-800"/>
+                <div className="mt-4 grid grid-cols-3 gap-2">
+                    {photos.map((photo, index) => (
+                        <div key={index} className="relative group">
+                            <img src={photo} alt="product preview" className="w-full h-24 object-cover rounded"/>
+                            <button type="button" onClick={() => removePhoto(index)} className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 leading-none text-xs opacity-0 group-hover:opacity-100 transition-opacity">&times;</button>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
             <Button type="submit">{productToEdit ? t('updateProduct') : t('addProduct')}</Button>
         </form>
     );
@@ -205,9 +258,10 @@ const CategoryManagementView = () => {
 };
 
 const FarmerDashboard: React.FC = () => {
-    const { currentStore, updateOrderStatus, products, orders, stores, showHelp, updateStore } = useAppContext();
+    const { currentStore, updateOrderStatus, products, orders, stores, showHelp, deleteProduct } = useAppContext();
     const t = useTranslations();
     const [activeView, setActiveView] = useState('dashboard');
+    const [isPreviewing, setIsPreviewing] = useState(false);
     const [modal, setModal] = useState<'add' | 'edit' | 'stock' | null>(null);
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
@@ -242,10 +296,29 @@ const FarmerDashboard: React.FC = () => {
         alert(`Order ${status.toLowerCase()}!`);
     }
 
+    const handleProductDelete = async (productId: string) => {
+        if (window.confirm(t('deleteProductConfirm'))) {
+            await deleteProduct(productId);
+            alert("Product deleted successfully.");
+        }
+    };
+
     const getBuyerStore = (buyerStoreId: string): Store | undefined => {
         return stores.find(s => s.storeId === buyerStoreId);
     }
     
+    if (isPreviewing && currentStore) {
+        return (
+            <DashboardLayout navItems={navItems} activeView={activeView} setActiveView={setActiveView}>
+                 <div className="flex justify-between items-center mb-6">
+                     <h2 className="text-3xl font-bold text-primary">{t('viewStore')}</h2>
+                     <Button onClick={() => setIsPreviewing(false)}>{t('backToDashboard')}</Button>
+                </div>
+                <StorePreview store={currentStore} products={myProducts} />
+            </DashboardLayout>
+        );
+    }
+
     const renderView = () => {
         switch (activeView) {
             case 'products':
@@ -262,7 +335,7 @@ const FarmerDashboard: React.FC = () => {
                             {myProducts.map(p => (
                                 <Card key={p.productId}>
                                     <div className="p-4 flex flex-col sm:flex-row justify-between items-center">
-                                        <div className="mb-4 sm:mb-0">
+                                        <div className="mb-4 sm:mb-0 flex-grow">
                                             <h4 className="font-bold text-lg">{p.productName}</h4>
                                             <p>{p.category} | {t('stock')}: {p.stockQuantity} kg</p>
                                         </div>
@@ -275,6 +348,7 @@ const FarmerDashboard: React.FC = () => {
                                                 <Button variant="secondary" className="w-full sm:w-auto text-sm !py-2" onClick={() => {setSelectedProduct(p); setModal('edit')}} Icon={EditIcon} disabled={isExpired}>{t('edit')}</Button>
                                                 <button onClick={(e) => showHelp(HelpTopic.EDIT_PRODUCT, e.currentTarget)} className="text-gray-500 hover:text-primary"><QuestionMarkCircleIcon className="w-5 h-5"/></button>
                                             </div>
+                                             <Button onClick={() => handleProductDelete(p.productId)} className="!bg-red-600 hover:!bg-red-800 !py-2" Icon={TrashIcon}></Button>
                                         </div>
                                     </div>
                                 </Card>
@@ -379,7 +453,15 @@ const FarmerDashboard: React.FC = () => {
 
     return (
         <DashboardLayout navItems={navItems} activeView={activeView} setActiveView={setActiveView}>
-            <h2 className="text-3xl font-bold text-primary mb-6">{t('farmerControlPanel')}</h2>
+            <div className="flex justify-between items-center mb-6">
+                 <h2 className="text-3xl font-bold text-primary">
+                    {activeView === 'dashboard' ? t('farmerControlPanel') : t(navItems.find(i => i.view === activeView)?.label as any)}
+                </h2>
+                <div>
+                  {activeView !== 'dashboard' && <Button onClick={() => setActiveView('dashboard')} variant="secondary" className="w-auto me-2">{t('backToDashboard')}</Button>}
+                  <Button onClick={() => setIsPreviewing(true)} variant="accent" Icon={EyeIcon} className="w-auto">{t('viewStore')}</Button>
+                </div>
+            </div>
             {renderView()}
             <Modal isOpen={modal === 'add' || modal === 'edit'} onClose={() => setModal(null)} title={modal === 'edit' ? t('editProduct') : t('addNewProduct')}>
                 <ProductForm onClose={() => setModal(null)} productToEdit={selectedProduct} storeCategories={currentStore?.categories || []} />
