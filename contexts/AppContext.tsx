@@ -1,7 +1,17 @@
 
 import React, { createContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { User, Store, Subscription, Product, Order, ShippingRequest, SubscriptionPlan, OrderStatus, ShippingStatus, Language } from '../types';
+import { User, Store, Subscription, Product, Order, ShippingRequest, SubscriptionPlan, OrderStatus, ShippingStatus, Language, HelpTopic, UserRole } from '../types';
 import { mockApi } from '../services/mockApi';
+import { GoogleGenAI } from "@google/genai";
+import { useTranslations } from '../hooks/useTranslations';
+
+// This would be in a .env file in a real app
+const API_KEY = process.env.API_KEY;
+
+interface HelpPosition {
+    top: number;
+    left: number;
+}
 
 interface AppContextType {
   // State
@@ -15,6 +25,9 @@ interface AppContextType {
   shippingRequests: ShippingRequest[];
   subscriptionPlans: SubscriptionPlan[];
   language: Language;
+  helpContent: string | null;
+  isHelpVisible: boolean;
+  helpPosition: HelpPosition | null;
 
   // Actions
   login: (email: string, password: string) => Promise<User | null>;
@@ -37,6 +50,8 @@ interface AppContextType {
   deleteStore: (storeId: string) => Promise<void>;
   deleteUser: (userId: string) => Promise<void>;
   refreshData: () => void;
+  showHelp: (topic: HelpTopic, element: HTMLElement) => void;
+  hideHelp: () => void;
 }
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -54,6 +69,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlan[]>([]);
   const [language, setLanguage] = useState<Language>(Language.EN);
   const [loading, setLoading] = useState(true);
+
+  // AI Help State
+  const [helpContent, setHelpContent] = useState<string | null>(null);
+  const [isHelpVisible, setIsHelpVisible] = useState(false);
+  const [helpPosition, setHelpPosition] = useState<HelpPosition | null>(null);
+
+  const t = useTranslations();
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -204,6 +226,45 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       refreshData();
   }
 
+  // AI Help Functions
+  const showHelp = async (topic: HelpTopic, element: HTMLElement) => {
+    const rect = element.getBoundingClientRect();
+    setHelpPosition({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX });
+    setHelpContent(null); // Show loading spinner
+    setIsHelpVisible(true);
+
+    try {
+        if (!API_KEY) {
+            throw new Error("API_KEY is not set for Gemini API.");
+        }
+        if (!currentStore) {
+            throw new Error("No store selected.");
+        }
+
+        const ai = new GoogleGenAI({apiKey: API_KEY});
+        const roleName = currentStore.storeType;
+        const promptKey = `helpPrompt_${topic}` as any;
+        const promptTemplate = t(promptKey, { role: roleName });
+        
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: promptTemplate,
+        });
+        
+        setHelpContent(response.text);
+
+    } catch (error) {
+        console.error("Error fetching help content:", error);
+        setHelpContent("Sorry, I couldn't fetch help at this moment.");
+    }
+  };
+
+  const hideHelp = () => {
+    setIsHelpVisible(false);
+    setHelpContent(null);
+    setHelpPosition(null);
+  };
+
   const value = {
     currentUser,
     currentStore,
@@ -215,6 +276,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     shippingRequests,
     subscriptionPlans,
     language,
+    helpContent,
+    isHelpVisible,
+    helpPosition,
     login,
     logout,
     registerUser,
@@ -233,7 +297,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     updateStore,
     deleteStore,
     deleteUser,
-    refreshData
+    refreshData,
+    showHelp,
+    hideHelp
   };
 
   return (

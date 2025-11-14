@@ -45,6 +45,23 @@ export enum Language {
   AR = 'Arabic',
 }
 
+export enum PaymentMethod {
+    COD = 'Cash on Delivery',
+    BARIDIMOB = 'BaridiMob',
+    CCP = 'CCP',
+}
+
+export enum HelpTopic {
+    ADD_PRODUCT = 'addProduct',
+    MANAGE_STOCK = 'manageStock',
+    EDIT_PRODUCT = 'editProduct',
+    CONFIRM_ORDER = 'confirmOrder',
+    CANCEL_ORDER = 'cancelOrder',
+    ACCEPT_REQUEST = 'acceptRequest',
+    START_DELIVERY = 'startDelivery',
+    MARK_DELIVERED = 'markDelivered',
+}
+
 export interface SubscriptionPlan {
   planId: 'FREE_30' | 'PLAN_6M' | 'PLAN_12M';
   nameKey: string;
@@ -115,14 +132,20 @@ export interface Product {
 export interface Order {
   orderId: string;
   productId: string;
-  buyerStoreId: string; // Changed from buyerId
-  sellerStoreId: string; // Changed from sellerId
+  buyerStoreId: string; 
+  sellerStoreId: string;
   orderType: OrderType;
   quantity: number;
   totalPrice: number;
   orderStatus: OrderStatus;
   notes: string;
   date: string;
+  // New checkout fields
+  customerFullName: string;
+  customerPhone: string;
+  customerWilaya: string;
+  customerAddress: string;
+  paymentMethod: PaymentMethod;
 }
 
 export interface ShippingRequest {

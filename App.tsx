@@ -11,6 +11,7 @@ import TransportDashboard from './screens/dashboards/TransportDashboard';
 import AdminDashboard from './screens/dashboards/AdminDashboard';
 import StoreSelectionScreen from './screens/StoreSelectionScreen';
 import UserRegisterScreen from './screens/UserRegisterScreen';
+import HelpTooltip from './components/common/HelpTooltip';
 
 type AuthState = 'login' | 'register';
 
@@ -85,7 +86,12 @@ const App: React.FC = () => {
       return null;
   }
 
-  return <div className={`font-sans ${language === Language.AR ? 'font-[Tajawal]' : ''}`}>{renderContent()}</div>;
+  return (
+    <div className={`font-sans ${language === Language.AR ? 'font-[Tajawal]' : ''}`}>
+      {renderContent()}
+      <HelpTooltip />
+    </div>
+  );
 };
 
 export default App;

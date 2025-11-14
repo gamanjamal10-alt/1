@@ -21,3 +21,4 @@ export { default as EditIcon } from './EditIcon';
 export { default as HistoryIcon } from './HistoryIcon';
 export { default as SettingsIcon } from './SettingsIcon';
 export { default as LanguageIcon } from './LanguageIcon';
+export { default as QuestionMarkCircleIcon } from './QuestionMarkCircleIcon';

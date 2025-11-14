@@ -1,16 +1,17 @@
+
 import React, { useState } from 'react';
 import { useAppContext } from '../../hooks/useAppContext';
 import { useTranslations } from '../../hooks/useTranslations';
-import { ShippingRequest, ShippingStatus, SubscriptionStatus } from '../../types';
+import { ShippingRequest, ShippingStatus, SubscriptionStatus, HelpTopic } from '../../types';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
-import { MapPinIcon, TruckIcon, DashboardIcon, HistoryIcon, SettingsIcon } from '../../components/icons';
+import { MapPinIcon, TruckIcon, DashboardIcon, HistoryIcon, SettingsIcon, QuestionMarkCircleIcon } from '../../components/icons';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import ProfileSettingsScreen from '../ProfileSettingsScreen';
 import SubscriptionScreen from '../SubscriptionScreen';
 
 const ShippingRequestCard: React.FC<{ request: ShippingRequest, isHistory?: boolean }> = ({ request, isHistory = false }) => {
-    const { currentStore, updateShippingRequest } = useAppContext();
+    const { currentStore, updateShippingRequest, showHelp } = useAppContext();
     const t = useTranslations();
     const isMyJob = request.transportStoreId === currentStore?.storeId;
     const isExpired = currentStore?.subscriptionStatus === SubscriptionStatus.EXPIRED;
@@ -60,9 +61,24 @@ const ShippingRequestCard: React.FC<{ request: ShippingRequest, isHistory?: bool
             </div>
             {!isHistory && (
                  <div className="p-4 bg-gray-50 border-t">
-                    {request.status === ShippingStatus.WAITING && (<Button variant="accent" onClick={handleAccept} disabled={isExpired}>{t('acceptRequest')}</Button>)}
-                    {isMyJob && request.status === ShippingStatus.ACCEPTED && (<Button onClick={() => handleUpdateStatus(ShippingStatus.ON_WAY)} Icon={TruckIcon} disabled={isExpired}>{t('startDelivery')}</Button>)}
-                    {isMyJob && request.status === ShippingStatus.ON_WAY && (<Button variant="primary" onClick={() => handleUpdateStatus(ShippingStatus.DELIVERED)} disabled={isExpired}>{t('markAsDelivered')}</Button>)}
+                    {request.status === ShippingStatus.WAITING && (
+                        <div className="flex items-center space-x-2">
+                            <Button variant="accent" onClick={handleAccept} disabled={isExpired}>{t('acceptRequest')}</Button>
+                            <button onClick={(e) => showHelp(HelpTopic.ACCEPT_REQUEST, e.currentTarget)} className="text-gray-500 hover:text-primary"><QuestionMarkCircleIcon className="w-6 h-6"/></button>
+                        </div>
+                    )}
+                    {isMyJob && request.status === ShippingStatus.ACCEPTED && (
+                        <div className="flex items-center space-x-2">
+                            <Button onClick={() => handleUpdateStatus(ShippingStatus.ON_WAY)} Icon={TruckIcon} disabled={isExpired}>{t('startDelivery')}</Button>
+                            <button onClick={(e) => showHelp(HelpTopic.START_DELIVERY, e.currentTarget)} className="text-gray-500 hover:text-primary"><QuestionMarkCircleIcon className="w-6 h-6"/></button>
+                        </div>
+                    )}
+                    {isMyJob && request.status === ShippingStatus.ON_WAY && (
+                        <div className="flex items-center space-x-2">
+                            <Button variant="primary" onClick={() => handleUpdateStatus(ShippingStatus.DELIVERED)} disabled={isExpired}>{t('markAsDelivered')}</Button>
+                            <button onClick={(e) => showHelp(HelpTopic.MARK_DELIVERED, e.currentTarget)} className="text-gray-500 hover:text-primary"><QuestionMarkCircleIcon className="w-6 h-6"/></button>
+                        </div>
+                    )}
                 </div>
             )}
         </Card>

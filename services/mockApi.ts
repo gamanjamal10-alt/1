@@ -1,4 +1,5 @@
-import { User, Store, Subscription, Product, Order, ShippingRequest, SubscriptionPlan, UserRole, OrderType, OrderStatus, ShippingStatus, Language, StoreStatus, SubscriptionStatus } from '../types';
+
+import { User, Store, Subscription, Product, Order, ShippingRequest, SubscriptionPlan, UserRole, OrderType, OrderStatus, ShippingStatus, Language, StoreStatus, SubscriptionStatus, PaymentMethod } from '../types';
 
 const addDays = (date: Date, days: number): Date => {
     const result = new Date(date);
@@ -172,7 +173,12 @@ let orders: Order[] = [
         totalPrice: 30000,
         orderStatus: OrderStatus.CONFIRMED,
         notes: 'Need delivery to Algiers.',
-        date: '2023-10-10'
+        date: '2023-10-10',
+        customerFullName: 'Fatima Zahra',
+        customerPhone: '213623456789',
+        customerWilaya: '16 - Alger',
+        customerAddress: '123 Rue Didouche Mourad, Algiers',
+        paymentMethod: PaymentMethod.COD,
     }
 ];
 
@@ -181,7 +187,7 @@ let shippingRequests: ShippingRequest[] = [
         requestId: 'req1',
         orderId: 'order1',
         pickupAddress: 'Route Nationale 1, Médéa',
-        deliveryAddress: 'Marché de Gros, Algiers',
+        deliveryAddress: '123 Rue Didouche Mourad, Algiers',
         deliveryPrice: 8000,
         transportStoreId: 'store4',
         status: ShippingStatus.ACCEPTED,

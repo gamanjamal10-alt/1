@@ -2,11 +2,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAppContext } from '../../hooks/useAppContext';
 import { useTranslations } from '../../hooks/useTranslations';
-import { Product, Order, OrderStatus, SubscriptionStatus, Store } from '../../types';
+import { Product, Order, OrderStatus, SubscriptionStatus, Store, HelpTopic } from '../../types';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
-import { PlusCircleIcon, EditIcon, BoxIcon, CartIcon, SettingsIcon, DashboardIcon, HistoryIcon } from '../../components/icons';
+import { PlusCircleIcon, EditIcon, BoxIcon, CartIcon, SettingsIcon, DashboardIcon, HistoryIcon, QuestionMarkCircleIcon } from '../../components/icons';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import ProfileSettingsScreen from '../ProfileSettingsScreen';
 import SubscriptionScreen from '../SubscriptionScreen';
@@ -112,7 +112,7 @@ const StockForm: React.FC<{ product: Product; onClose: () => void; }> = ({ produ
 };
 
 const FarmerDashboard: React.FC = () => {
-    const { currentStore, updateOrderStatus, products, orders, stores } = useAppContext();
+    const { currentStore, updateOrderStatus, products, orders, stores, showHelp } = useAppContext();
     const t = useTranslations();
     const [activeView, setActiveView] = useState('dashboard');
     const [modal, setModal] = useState<'add' | 'edit' | 'stock' | null>(null);
@@ -159,7 +159,10 @@ const FarmerDashboard: React.FC = () => {
                     <div>
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="text-2xl font-semibold text-primary">{t('myProducts')}</h3>
-                            <Button variant="accent" onClick={() => { setSelectedProduct(null); setModal('add')}} Icon={PlusCircleIcon} disabled={isExpired}>{t('addProduct')}</Button>
+                            <div className="flex items-center space-x-2">
+                                <Button variant="accent" onClick={() => { setSelectedProduct(null); setModal('add')}} Icon={PlusCircleIcon} disabled={isExpired}>{t('addProduct')}</Button>
+                                <button onClick={(e) => showHelp(HelpTopic.ADD_PRODUCT, e.currentTarget)} className="text-gray-500 hover:text-primary"><QuestionMarkCircleIcon className="w-6 h-6"/></button>
+                            </div>
                         </div>
                         <div className="space-y-4">
                             {myProducts.map(p => (
@@ -170,8 +173,14 @@ const FarmerDashboard: React.FC = () => {
                                             <p>{t('stock')}: {p.stockQuantity} kg</p>
                                         </div>
                                         <div className="flex flex-col sm:flex-row sm:space-x-2 rtl:sm:space-x-reverse space-y-2 sm:space-y-0 w-full sm:w-auto">
-                                            <Button variant="secondary" className="w-full sm:w-auto text-sm !py-2" onClick={() => { setSelectedProduct(p); setModal('stock') }} Icon={BoxIcon} disabled={isExpired}>{t('manageStock')}</Button>
-                                            <Button variant="secondary" className="w-full sm:w-auto text-sm !py-2" onClick={() => {setSelectedProduct(p); setModal('edit')}} Icon={EditIcon} disabled={isExpired}>{t('edit')}</Button>
+                                            <div className="flex items-center space-x-1">
+                                                <Button variant="secondary" className="w-full sm:w-auto text-sm !py-2" onClick={() => { setSelectedProduct(p); setModal('stock') }} Icon={BoxIcon} disabled={isExpired}>{t('manageStock')}</Button>
+                                                <button onClick={(e) => showHelp(HelpTopic.MANAGE_STOCK, e.currentTarget)} className="text-gray-500 hover:text-primary"><QuestionMarkCircleIcon className="w-5 h-5"/></button>
+                                            </div>
+                                            <div className="flex items-center space-x-1">
+                                                <Button variant="secondary" className="w-full sm:w-auto text-sm !py-2" onClick={() => {setSelectedProduct(p); setModal('edit')}} Icon={EditIcon} disabled={isExpired}>{t('edit')}</Button>
+                                                <button onClick={(e) => showHelp(HelpTopic.EDIT_PRODUCT, e.currentTarget)} className="text-gray-500 hover:text-primary"><QuestionMarkCircleIcon className="w-5 h-5"/></button>
+                                            </div>
                                         </div>
                                     </div>
                                 </Card>
@@ -186,17 +195,27 @@ const FarmerDashboard: React.FC = () => {
                          <div className="space-y-4">
                             {activeOrders.map(o => {
                                 const buyerStore = getBuyerStore(o.buyerStoreId);
+                                const product = products.find(p => p.productId === o.productId);
                                 return (
                                 <Card key={o.orderId}>
-                                    <div className="p-4">
-                                        <h4 className="font-bold text-lg text-primary">{products.find(p=>p.productId === o.productId)?.productName}</h4>
-                                        <p>{t('buyer')}: {buyerStore?.storeName}</p>
-                                        <p>{t('status')}: <span className="font-semibold">{o.orderStatus}</span></p>
+                                    <div className="p-4 space-y-2">
+                                        <h4 className="font-bold text-lg text-primary">{product?.productName}</h4>
+                                        <p><span className="font-semibold">{t('buyer')}:</span> {buyerStore?.storeName} ({o.customerFullName})</p>
+                                        <p><span className="font-semibold">{t('address')}:</span> {o.customerAddress}, {o.customerWilaya}</p>
+                                        <p><span className="font-semibold">{t('phone')}:</span> {o.customerPhone}</p>
+                                        <p><span className="font-semibold">{t('paymentMethod')}:</span> {t(o.paymentMethod.replace(/\s/g, '').toLowerCase() as any)}</p>
+                                        <p><span className="font-semibold">{t('status')}:</span> <span className="font-semibold">{o.orderStatus}</span></p>
                                     </div>
                                     {o.orderStatus === OrderStatus.PENDING && (
                                         <div className="p-4 bg-gray-50 border-t flex space-x-2 rtl:space-x-reverse">
-                                            <Button variant="accent" onClick={() => handleUpdateStatus(o.orderId, OrderStatus.CONFIRMED)} disabled={isExpired}>{t('confirm')}</Button>
-                                            <Button variant="secondary" onClick={() => handleUpdateStatus(o.orderId, OrderStatus.CANCELLED)} disabled={isExpired}>{t('cancel')}</Button>
+                                            <div className="flex items-center space-x-1">
+                                               <Button variant="accent" onClick={() => handleUpdateStatus(o.orderId, OrderStatus.CONFIRMED)} disabled={isExpired}>{t('confirm')}</Button>
+                                                <button onClick={(e) => showHelp(HelpTopic.CONFIRM_ORDER, e.currentTarget)} className="text-gray-500 hover:text-primary"><QuestionMarkCircleIcon className="w-5 h-5"/></button>
+                                            </div>
+                                            <div className="flex items-center space-x-1">
+                                                <Button variant="secondary" onClick={() => handleUpdateStatus(o.orderId, OrderStatus.CANCELLED)} disabled={isExpired}>{t('cancel')}</Button>
+                                                <button onClick={(e) => showHelp(HelpTopic.CANCEL_ORDER, e.currentTarget)} className="text-gray-500 hover:text-primary"><QuestionMarkCircleIcon className="w-5 h-5"/></button>
+                                            </div>
                                         </div>
                                     )}
                                 </Card>
