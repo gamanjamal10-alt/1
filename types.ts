@@ -5,7 +5,6 @@ export enum UserRole {
   RETAILER = 'Retailer',
   TRANSPORT = 'Transport',
   ADMIN = 'Admin',
-  MAZAYREN = 'Mazayren',
 }
 
 export enum StoreStatus {

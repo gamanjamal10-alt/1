@@ -69,7 +69,6 @@ const CreateStoreScreen: React.FC<CreateStoreScreenProps> = ({ onStoreCreated })
                 <option value={UserRole.WHOLESALER}>{t('wholesalerStore')}</option>
                 <option value={UserRole.RETAILER}>{t('retailerStore')}</option>
                 <option value={UserRole.TRANSPORT}>{t('transportStore')}</option>
-                <option value={UserRole.MAZAYREN}>{t('mazayrenStore')}</option>
             </select>
 
             <select name="country" value={formData.country} onChange={handleChange} className="w-full p-2 border rounded">
