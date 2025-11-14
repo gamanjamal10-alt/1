@@ -6,6 +6,7 @@ import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import { mockApi } from '../services/mockApi';
 import { CalendarIcon, CheckCircleIcon, ClockIcon, TruckIcon, XCircleIcon } from '../components/icons';
+import { useTranslations } from '../hooks/useTranslations';
 
 const StatusIcon: React.FC<{ status: OrderStatus | ShippingStatus }> = ({ status }) => {
     switch (status) {
@@ -29,23 +30,24 @@ const StatusIcon: React.FC<{ status: OrderStatus | ShippingStatus }> = ({ status
 
 
 const OrderItem: React.FC<{ order: Order }> = ({ order }) => {
-    const { products, users, createShippingRequest, refreshData } = useAppContext();
+    const { products, userStores, createShippingRequest, refreshData } = useAppContext();
+    const t = useTranslations();
     const [shippingRequest, setShippingRequest] = useState<ShippingRequest | undefined>(undefined);
 
     const product = products.find(p => p.productId === order.productId);
-    const seller = users.find(u => u.userId === order.sellerId);
-    const buyer = users.find(u => u.userId === order.buyerId);
+    const sellerStore = userStores.find(s => s.storeId === order.sellerStoreId);
+    const buyerStore = userStores.find(s => s.storeId === order.buyerStoreId);
     
     useEffect(() => {
         mockApi.getShippingRequestByOrder(order.orderId).then(setShippingRequest);
     }, [order.orderId, refreshData]);
 
     const handleRequestShipping = async () => {
-        if (!seller || !buyer) return;
+        if (!sellerStore || !buyerStore) return;
         await createShippingRequest({
             orderId: order.orderId,
-            pickupAddress: seller.address,
-            deliveryAddress: buyer.address,
+            pickupAddress: sellerStore.address,
+            deliveryAddress: buyerStore.address,
         });
         alert('Shipping request sent to all transport companies!');
     }
@@ -56,7 +58,7 @@ const OrderItem: React.FC<{ order: Order }> = ({ order }) => {
                 <div className="flex justify-between items-start">
                     <div>
                         <h4 className="font-bold text-lg text-primary">{product?.productName}</h4>
-                        <p className="text-sm text-gray-600">From: {seller?.businessName}</p>
+                        <p className="text-sm text-gray-600">{t('from')}: {sellerStore?.storeName}</p>
                     </div>
                     <div className="flex items-center space-x-2">
                          <span className="font-semibold">{order.orderStatus}</span>
@@ -64,7 +66,7 @@ const OrderItem: React.FC<{ order: Order }> = ({ order }) => {
                     </div>
                 </div>
                 <div className="flex justify-between items-center mt-2 text-gray-700">
-                    <p>Qty: {order.quantity} kg | Total: {order.totalPrice} DH</p>
+                    <p>{t('quantity')}: {order.quantity} kg | {t('total')}: {order.totalPrice} DH</p>
                     <div className="flex items-center text-sm">
                         <CalendarIcon className="w-4 h-4 mr-1"/>
                         <span>{order.date}</span>
@@ -76,11 +78,11 @@ const OrderItem: React.FC<{ order: Order }> = ({ order }) => {
                         {shippingRequest ? (
                              <div className="flex items-center space-x-2">
                                 <StatusIcon status={shippingRequest.status} />
-                                <span>Shipping: {shippingRequest.status}</span>
+                                <span>{t('shipping')}: {shippingRequest.status}</span>
                                 {shippingRequest.deliveryPrice && <span className="font-bold">{shippingRequest.deliveryPrice} DH</span>}
                             </div>
                         ) : (
-                            <Button variant="secondary" onClick={handleRequestShipping}>Send Delivery Request</Button>
+                            <Button variant="secondary" onClick={handleRequestShipping}>{t('sendDeliveryRequest')}</Button>
                         )}
                     </div>
                 )}
@@ -95,16 +97,17 @@ interface MyOrdersScreenProps {
 }
 
 const MyOrdersScreen: React.FC<MyOrdersScreenProps> = ({ orderFilter }) => {
-    const { currentUser, refreshData } = useAppContext();
+    const { currentStore, refreshData } = useAppContext();
+    const t = useTranslations();
     const [myOrders, setMyOrders] = useState<Order[]>([]);
 
     useEffect(() => {
-        if (currentUser) {
-            mockApi.getOrdersForBuyer(currentUser.userId).then(orders => {
+        if (currentStore) {
+            mockApi.getOrdersForBuyerStore(currentStore.storeId).then(orders => {
                 setMyOrders(orders.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
             });
         }
-    }, [currentUser, refreshData]);
+    }, [currentStore, refreshData]);
 
     const filteredOrders = useMemo(() => {
         const activeStatuses = [OrderStatus.PENDING, OrderStatus.CONFIRMED];
@@ -114,8 +117,8 @@ const MyOrdersScreen: React.FC<MyOrdersScreenProps> = ({ orderFilter }) => {
         return myOrders.filter(order => !activeStatuses.includes(order.orderStatus));
     }, [myOrders, orderFilter]);
     
-    const title = orderFilter === 'active' ? 'My Active Orders' : 'My Order History';
-    const emptyMessage = orderFilter === 'active' ? 'You have no active orders.' : 'You have no past orders.';
+    const title = orderFilter === 'active' ? t('myActiveOrders') : t('myOrderHistory');
+    const emptyMessage = orderFilter === 'active' ? t('noActiveOrders') : t('noPastOrders');
 
     return (
         <div>

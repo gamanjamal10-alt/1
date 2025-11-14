@@ -10,7 +10,8 @@ const AdminDashboard: React.FC = () => {
     const renderContent = () => {
         switch (activeTab) {
             case 'users':
-                return users.map(u => <div key={u.userId} className="p-2 border-b">{u.fullName} ({u.accountType}) - {u.businessName}</div>);
+                // FIX: Removed non-existent `accountType` and `businessName` properties. Displaying email instead.
+                return users.map(u => <div key={u.userId} className="p-2 border-b">{u.fullName} ({u.email})</div>);
             case 'products':
                 return products.map(p => <div key={p.productId} className="p-2 border-b">{p.productName} - Stock: {p.stockQuantity}kg</div>);
             case 'orders':

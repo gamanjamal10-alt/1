@@ -6,8 +6,8 @@ import Card from '../../components/common/Card';
 import { SearchIcon, MapPinIcon, BoxIcon } from '../../components/icons';
 
 const ProductCard: React.FC<{ product: Product; onSelect: (productId: string) => void, orderType: OrderType }> = ({ product, onSelect, orderType }) => {
-    const { users } = useAppContext();
-    const farmer = users.find(u => u.userId === product.farmerId);
+    const { userStores } = useAppContext();
+    const farmerStore = userStores.find(s => s.storeId === product.storeId);
     const price = orderType === OrderType.WHOLESALE ? product.wholesalePrice : product.retailPrice;
 
     return (
@@ -23,7 +23,7 @@ const ProductCard: React.FC<{ product: Product; onSelect: (productId: string) =>
                 </div>
                  <div className="flex items-center text-gray-600 text-sm">
                     <MapPinIcon className="w-4 h-4 mr-2"/>
-                    <span>{farmer?.businessName}, {product.productLocation}</span>
+                    <span>{farmerStore?.storeName}, {product.productLocation}</span>
                 </div>
             </div>
         </Card>

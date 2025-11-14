@@ -1,6 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAppContext } from './hooks/useAppContext';
-// FIX: Imported Language enum to resolve reference errors.
 import { UserRole, Language } from './types';
 import LoginScreen from './screens/LoginScreen';
 import Header from './components/Header';
@@ -9,33 +9,29 @@ import WholesalerDashboard from './screens/dashboards/WholesalerDashboard';
 import RetailerDashboard from './screens/dashboards/RetailerDashboard';
 import TransportDashboard from './screens/dashboards/TransportDashboard';
 import AdminDashboard from './screens/dashboards/AdminDashboard';
-import ChooseStoreTypeScreen from './screens/ChooseStoreTypeScreen';
-import RegisterScreen from './screens/RegisterScreen';
+import StoreSelectionScreen from './screens/StoreSelectionScreen';
+import UserRegisterScreen from './screens/UserRegisterScreen';
 
-type AppState = 'login' | 'chooseType' | 'register' | 'loggedIn';
+type AuthState = 'login' | 'register';
 
 const App: React.FC = () => {
-  const { currentUser, language, setLanguage } = useAppContext();
-  const [appState, setAppState] = useState<AppState>('login');
-  const [roleToRegister, setRoleToRegister] = useState<UserRole | null>(null);
+  const { currentUser, currentStore, language } = useAppContext();
+  const [authState, setAuthState] = useState<AuthState>('login');
   
   useEffect(() => {
     document.documentElement.lang = language === Language.AR ? 'ar' : 'en';
     document.documentElement.dir = language === Language.AR ? 'rtl' : 'ltr';
   }, [language]);
-  
-  useEffect(() => {
-    if (currentUser) {
-      setAppState('loggedIn');
-    } else {
-      setAppState('login');
-    }
-  }, [currentUser]);
 
   const renderDashboard = () => {
-    if (!currentUser) return null; // Should not happen in 'loggedIn' state
+    if (!currentStore) return null;
     
-    switch (currentUser.accountType) {
+    // Check for admin user with special store
+    if (currentUser?.email === 'admin@example.com' && currentStore.storeType === UserRole.ADMIN) {
+        return <AdminDashboard />;
+    }
+    
+    switch (currentStore.storeType) {
       case UserRole.FARMER:
         return <FarmerDashboard />;
       case UserRole.WHOLESALER:
@@ -44,42 +40,37 @@ const App: React.FC = () => {
         return <RetailerDashboard />;
       case UserRole.TRANSPORT:
         return <TransportDashboard />;
-      case UserRole.ADMIN:
-        return <AdminDashboard />;
       default:
-        return <div>Error: Unknown user role.</div>;
+        // Handle other roles or show an error/generic dashboard
+        return <div>Dashboard for {currentStore.storeType} coming soon.</div>;
     }
   };
-  
-  const handleSelectRole = (role: UserRole) => {
-      setRoleToRegister(role);
-      setAppState('register');
+
+  const renderContent = () => {
+      if (!currentUser) {
+          if (authState === 'register') {
+              return <UserRegisterScreen onRegisterSuccess={() => setAuthState('login')} />;
+          }
+          return <LoginScreen onGoToRegister={() => setAuthState('register')} />;
+      }
+
+      if (currentUser && !currentStore) {
+          return <StoreSelectionScreen />;
+      }
+      
+      if (currentUser && currentStore) {
+        return (
+            <div className="min-h-screen bg-secondary">
+                <Header />
+                <main>{renderDashboard()}</main>
+            </div>
+        );
+      }
+      
+      return null;
   }
 
-  const renderState = () => {
-    switch(appState) {
-        case 'chooseType':
-            return <ChooseStoreTypeScreen onSelectRole={handleSelectRole} />;
-        case 'register':
-            if (!roleToRegister) { // Should not happen
-                setAppState('chooseType');
-                return null;
-            }
-            return <RegisterScreen role={roleToRegister} onRegisterSuccess={() => setAppState('login')} />;
-        case 'loggedIn':
-            return (
-                <div className="min-h-screen bg-secondary">
-                    <Header />
-                    <main>{renderDashboard()}</main>
-                </div>
-            );
-        case 'login':
-        default:
-            return <LoginScreen onLoginSuccess={() => setAppState('loggedIn')} onGoToRegister={() => setAppState('chooseType')} />;
-    }
-  }
-
-  return <div className={`font-sans ${language === Language.AR ? 'font-[Tajawal]' : ''}`}>{renderState()}</div>;
+  return <div className={`font-sans ${language === Language.AR ? 'font-[Tajawal]' : ''}`}>{renderContent()}</div>;
 };
 
 export default App;

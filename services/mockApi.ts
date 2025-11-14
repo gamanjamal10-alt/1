@@ -1,5 +1,5 @@
 
-import { User, Product, Order, ShippingRequest, SubscriptionPlan, UserRole, OrderType, OrderStatus, ShippingStatus, Language } from '../types';
+import { User, Store, Subscription, Product, Order, ShippingRequest, SubscriptionPlan, UserRole, OrderType, OrderStatus, ShippingStatus, Language, StoreStatus, SubscriptionStatus } from '../types';
 
 const addDays = (date: Date, days: number): Date => {
     const result = new Date(date);
@@ -10,101 +10,113 @@ const today = new Date();
 
 let users: User[] = [
   {
-    userId: 'farmer1',
+    userId: 'user1',
     fullName: 'Ahmed Hassan',
     email: 'ahmed.hassan@example.com',
     password: 'password123',
+    phone: '212612345678',
     country: 'Morocco',
-    enable2FA: true,
+    twoFactorEnabled: true,
     language: Language.EN,
-    accountType: UserRole.FARMER,
-    phoneNumber: '212612345678',
-    whatsAppLink: 'https://wa.me/212612345678',
-    businessName: 'Green Valley Farms',
-    address: 'Route de Fes, Meknes',
-    locationGps: { lat: 33.8935, lng: -5.5473 },
-    profilePhoto: 'https://picsum.photos/seed/farmer1/200',
     registrationDate: '2023-01-15',
-    subscriptionPlanId: 'plan2',
-    subscriptionEndDate: addDays(today, 100).toISOString().split('T')[0],
   },
   {
-    userId: 'wholesaler1',
+    userId: 'user2',
     fullName: 'Fatima Zahra',
     email: 'fatima.zahra@example.com',
     password: 'password123',
-    country: 'Morocco',
-    enable2FA: false,
-    language: Language.FR,
-    accountType: UserRole.WHOLESALER,
-    phoneNumber: '212623456789',
-    whatsAppLink: 'https://wa.me/212623456789',
-    businessName: 'AgriBulk Traders',
-    address: 'Marjane Market, Casablanca',
-    locationGps: { lat: 33.5731, lng: -7.5898 },
-    profilePhoto: 'https://picsum.photos/seed/wholesaler1/200',
-    registrationDate: '2023-02-20',
-    subscriptionPlanId: 'plan3',
-    subscriptionEndDate: addDays(today, 250).toISOString().split('T')[0],
-  },
-  {
-    userId: 'retailer1',
-    fullName: 'Youssef Alami',
-    email: 'youssef.alami@example.com',
-    password: 'password123',
+    phone: '212623456789',
     country: 'Algeria',
-    enable2FA: false,
-    language: Language.AR,
-    accountType: UserRole.RETAILER,
-    phoneNumber: '212634567890',
-    whatsAppLink: 'https://wa.me/212634567890',
-    businessName: 'The Fresh Corner',
-    address: 'Rue de la Liberte, Rabat',
-    locationGps: { lat: 34.0209, lng: -6.8417 },
-    profilePhoto: 'https://picsum.photos/seed/retailer1/200',
-    registrationDate: '2023-03-10',
-    subscriptionPlanId: 'plan1',
-    subscriptionEndDate: addDays(today, 15).toISOString().split('T')[0],
+    twoFactorEnabled: false,
+    language: Language.FR,
+    registrationDate: '2023-02-20',
   },
-  {
-    userId: 'transport1',
-    fullName: 'Karim Express',
-    email: 'karim.express@example.com',
-    password: 'password123',
-    country: 'Morocco',
-    enable2FA: true,
-    language: Language.EN,
-    accountType: UserRole.TRANSPORT,
-    phoneNumber: '212645678901',
-    whatsAppLink: 'https://wa.me/212645678901',
-    businessName: 'Karim Express',
-    address: 'Port de Tanger Med',
-    locationGps: { lat: 35.884, lng: -5.526 },
-    profilePhoto: 'https://picsum.photos/seed/transport1/200',
-    registrationDate: '2023-04-05',
-    subscriptionPlanId: 'plan2',
-    subscriptionEndDate: addDays(today, 50).toISOString().split('T')[0],
-  },
-  {
-    userId: 'admin1',
+   {
+    userId: 'adminuser',
     fullName: 'Admin User',
     email: 'admin@example.com',
     password: 'password123',
+    phone: '212600000000',
     country: 'Morocco',
-    enable2FA: false,
+    twoFactorEnabled: false,
     language: Language.EN,
-    accountType: UserRole.ADMIN,
-    phoneNumber: '212600000000',
-    whatsAppLink: 'https://wa.me/212600000000',
-    businessName: 'Souk El Fellah HQ',
-    address: 'Casablanca, Morocco',
-    locationGps: { lat: 33.5731, lng: -7.5898 },
-    profilePhoto: 'https://picsum.photos/seed/admin1/200',
     registrationDate: '2023-01-01',
-    subscriptionPlanId: 'plan3',
-    subscriptionEndDate: '9999-12-31',
   },
 ];
+
+let stores: Store[] = [
+    {
+        storeId: 'store1',
+        userId: 'user1',
+        storeName: 'Green Valley Farms',
+        storeType: UserRole.FARMER,
+        createdAt: '2023-01-15',
+        status: StoreStatus.ACTIVE,
+        address: 'Route de Fes, Meknes',
+        locationGps: { lat: 33.8935, lng: -5.5473 },
+        profilePhoto: 'https://picsum.photos/seed/farmer1/200',
+        whatsAppLink: 'https://wa.me/212612345678',
+    },
+    {
+        storeId: 'store2',
+        userId: 'user2',
+        storeName: 'AgriBulk Traders',
+        storeType: UserRole.WHOLESALER,
+        wilaya: '16 - Alger',
+        createdAt: '2023-02-20',
+        status: StoreStatus.ACTIVE,
+        address: 'Marjane Market, Casablanca',
+        locationGps: { lat: 33.5731, lng: -7.5898 },
+        profilePhoto: 'https://picsum.photos/seed/wholesaler1/200',
+        whatsAppLink: 'https://wa.me/212623456789',
+    },
+    {
+        storeId: 'store3',
+        userId: 'user2',
+        storeName: 'The Fresh Corner',
+        storeType: UserRole.RETAILER,
+        wilaya: '31 - Oran',
+        createdAt: '2023-03-10',
+        status: StoreStatus.EXPIRED,
+        address: 'Rue de la Liberte, Rabat',
+        locationGps: { lat: 34.0209, lng: -6.8417 },
+        profilePhoto: 'https://picsum.photos/seed/retailer1/200',
+        whatsAppLink: 'https://wa.me/212634567890',
+    },
+    {
+        storeId: 'store4',
+        userId: 'user1',
+        storeName: 'Karim Express',
+        storeType: UserRole.TRANSPORT,
+        createdAt: '2023-04-05',
+        status: StoreStatus.ACTIVE,
+        address: 'Port de Tanger Med',
+        locationGps: { lat: 35.884, lng: -5.526 },
+        profilePhoto: 'https://picsum.photos/seed/transport1/200',
+        whatsAppLink: 'https://wa.me/212645678901',
+    },
+     {
+        storeId: 'adminstore',
+        userId: 'adminuser',
+        storeName: 'Souk El Fellah HQ',
+        storeType: UserRole.ADMIN,
+        createdAt: '2023-01-01',
+        status: StoreStatus.ACTIVE,
+        address: 'Casablanca, Morocco',
+        locationGps: { lat: 33.5731, lng: -7.5898 },
+        profilePhoto: 'https://picsum.photos/seed/admin1/200',
+        whatsAppLink: 'https://wa.me/212600000000',
+    },
+]
+
+let subscriptions: Subscription[] = [
+    { subscriptionId: 'sub1', storeId: 'store1', planId: 'PLAN_6M', startDate: today.toISOString().split('T')[0], endDate: addDays(today, 180).toISOString().split('T')[0], status: SubscriptionStatus.ACTIVE },
+    { subscriptionId: 'sub2', storeId: 'store2', planId: 'PLAN_12M', startDate: today.toISOString().split('T')[0], endDate: addDays(today, 365).toISOString().split('T')[0], status: SubscriptionStatus.ACTIVE },
+    { subscriptionId: 'sub3', storeId: 'store3', planId: 'FREE_30', startDate: addDays(today, -35).toISOString().split('T')[0], endDate: addDays(today, -5).toISOString().split('T')[0], status: SubscriptionStatus.EXPIRED },
+    { subscriptionId: 'sub4', storeId: 'store4', planId: 'PLAN_6M', startDate: today.toISOString().split('T')[0], endDate: addDays(today, 90).toISOString().split('T')[0], status: SubscriptionStatus.ACTIVE },
+    { subscriptionId: 'subadmin', storeId: 'adminstore', planId: 'PLAN_12M', startDate: '2023-01-01', endDate: '9999-12-31', status: SubscriptionStatus.ACTIVE },
+];
+
 
 let products: Product[] = [
   {
@@ -117,7 +129,7 @@ let products: Product[] = [
     stockQuantity: 5000,
     photos: ['https://picsum.photos/seed/tomato1/800/600', 'https://picsum.photos/seed/tomato2/800/600'],
     description: 'Fresh, juicy organic tomatoes grown in the fertile lands of Meknes. Perfect for salads, sauces, and cooking.',
-    farmerId: 'farmer1',
+    storeId: 'store1',
     productLocation: 'Meknes',
     dateAdded: '2023-10-01',
   },
@@ -131,7 +143,7 @@ let products: Product[] = [
     stockQuantity: 10000,
     photos: ['https://picsum.photos/seed/orange1/800/600', 'https://picsum.photos/seed/orange2/800/600'],
     description: 'Sweet and flavorful Beldi oranges from the Souss region. High in Vitamin C.',
-    farmerId: 'farmer1',
+    storeId: 'store1',
     productLocation: 'Agadir',
     dateAdded: '2023-10-05',
   },
@@ -141,8 +153,8 @@ let orders: Order[] = [
     {
         orderId: 'order1',
         productId: 'prod1',
-        buyerId: 'wholesaler1',
-        sellerId: 'farmer1',
+        buyerStoreId: 'store2',
+        sellerStoreId: 'store1',
         orderType: OrderType.WHOLESALE,
         quantity: 250,
         totalPrice: 2000,
@@ -159,7 +171,7 @@ let shippingRequests: ShippingRequest[] = [
         pickupAddress: 'Route de Fes, Meknes',
         deliveryAddress: 'Marjane Market, Casablanca',
         deliveryPrice: 500,
-        transportCompanyId: 'transport1',
+        transportStoreId: 'store4',
         status: ShippingStatus.ACCEPTED,
         date: '2023-10-11'
     }
@@ -167,21 +179,21 @@ let shippingRequests: ShippingRequest[] = [
 
 const subscriptionPlans: SubscriptionPlan[] = [
     {
-        planId: 'plan1',
+        planId: 'FREE_30',
         nameKey: 'freePlan',
         price: 0,
         durationDays: 30,
         features: ['basicUsage'],
     },
     {
-        planId: 'plan2',
+        planId: 'PLAN_6M',
         nameKey: 'sixMonthPlan',
         price: 6500,
         durationDays: 180,
         features: ['fullFeatures'],
     },
     {
-        planId: 'plan3',
+        planId: 'PLAN_12M',
         nameKey: 'twelveMonthPlan',
         price: 9500,
         durationDays: 365,
@@ -194,7 +206,7 @@ export const mockApi = {
   getUsers: async (): Promise<User[]> => Promise.resolve(users),
   getUserById: async (id: string): Promise<User | undefined> => Promise.resolve(users.find(u => u.userId === id)),
   getUserByEmail: async (email: string): Promise<User | undefined> => Promise.resolve(users.find(u => u.email.toLowerCase() === email.toLowerCase())),
-  registerUser: async (userData: Omit<User, 'userId' | 'registrationDate' | 'subscriptionPlanId' | 'subscriptionEndDate' | 'whatsAppLink' | 'locationGps' | 'profilePhoto' | 'address'>): Promise<User> => {
+  registerUser: async (userData: Omit<User, 'userId' | 'registrationDate' | 'language'>): Promise<User> => {
     if (users.some(u => u.email.toLowerCase() === userData.email.toLowerCase())) {
         throw new Error("User with this email already exists.");
     }
@@ -202,12 +214,7 @@ export const mockApi = {
         ...userData,
         userId: `user${Date.now()}`,
         registrationDate: new Date().toISOString().split('T')[0],
-        subscriptionPlanId: 'plan1', // Free plan
-        subscriptionEndDate: addDays(new Date(), 30).toISOString().split('T')[0],
-        whatsAppLink: `https://wa.me/${userData.phoneNumber.replace(/\D/g, '')}`,
-        locationGps: { lat: 0, lng: 0 }, // Default location
-        profilePhoto: `https://picsum.photos/seed/user${Date.now()}/200`,
-        address: 'Not specified',
+        language: Language.EN,
     };
     users.push(newUser);
     return Promise.resolve(newUser);
@@ -221,10 +228,40 @@ export const mockApi = {
     return Promise.resolve(undefined);
   },
   
+  // STORE
+  getStores: async (): Promise<Store[]> => Promise.resolve(stores),
+  getStoresByUserId: async (userId: string): Promise<Store[]> => Promise.resolve(stores.filter(s => s.userId === userId)),
+  createStore: async (storeData: Omit<Store, 'storeId' | 'createdAt' | 'status' | 'address' | 'locationGps' | 'profilePhoto' | 'whatsAppLink'>): Promise<Store> => {
+      const user = await mockApi.getUserById(storeData.userId);
+      if (!user) throw new Error("User not found");
+      const newStore: Store = {
+          ...storeData,
+          storeId: `store${Date.now()}`,
+          createdAt: new Date().toISOString().split('T')[0],
+          status: StoreStatus.ACTIVE,
+          address: 'Not specified',
+          locationGps: { lat: 0, lng: 0 },
+          profilePhoto: `https://picsum.photos/seed/store${Date.now()}/200`,
+          whatsAppLink: `https://wa.me/${user.phone.replace(/\D/g, '')}`,
+      };
+      stores.push(newStore);
+      // Create a free trial subscription for the new store
+      const newSubscription: Subscription = {
+          subscriptionId: `sub${Date.now()}`,
+          storeId: newStore.storeId,
+          planId: 'FREE_30',
+          startDate: newStore.createdAt,
+          endDate: addDays(new Date(newStore.createdAt), 30).toISOString().split('T')[0],
+          status: SubscriptionStatus.ACTIVE,
+      };
+      subscriptions.push(newSubscription);
+      return Promise.resolve(newStore);
+  },
+
   // PRODUCT
   getProducts: async (): Promise<Product[]> => Promise.resolve(products),
   getProductById: async (id: string): Promise<Product | undefined> => Promise.resolve(products.find(p => p.productId === id)),
-  getProductsByFarmer: async (farmerId: string): Promise<Product[]> => Promise.resolve(products.filter(p => p.farmerId === farmerId)),
+  getProductsByStore: async (storeId: string): Promise<Product[]> => Promise.resolve(products.filter(p => p.storeId === storeId)),
   addProduct: async (product: Omit<Product, 'productId' | 'dateAdded'>): Promise<Product> => {
     const newProduct: Product = {
       ...product,
@@ -242,19 +279,11 @@ export const mockApi = {
     }
     return Promise.resolve(undefined);
   },
-  updateProductStock: async (productId: string, newStock: number): Promise<Product | undefined> => {
-    const product = products.find(p => p.productId === productId);
-    if(product) {
-      product.stockQuantity = newStock;
-      return Promise.resolve(product);
-    }
-    return Promise.resolve(undefined);
-  },
 
   // ORDER
   getOrders: async (): Promise<Order[]> => Promise.resolve(orders),
-  getOrdersForBuyer: async (buyerId: string): Promise<Order[]> => Promise.resolve(orders.filter(o => o.buyerId === buyerId)),
-  getOrdersForSeller: async (sellerId: string): Promise<Order[]> => Promise.resolve(orders.filter(o => o.sellerId === sellerId)),
+  getOrdersForBuyerStore: async (storeId: string): Promise<Order[]> => Promise.resolve(orders.filter(o => o.buyerStoreId === storeId)),
+  getOrdersForSellerStore: async (storeId: string): Promise<Order[]> => Promise.resolve(orders.filter(o => o.sellerStoreId === storeId)),
   createOrder: async (orderData: Omit<Order, 'orderId' | 'date' | 'orderStatus' | 'totalPrice'>): Promise<Order> => {
     const product = await mockApi.getProductById(orderData.productId);
     if (!product) throw new Error("Product not found");
@@ -281,25 +310,26 @@ export const mockApi = {
 
   // SHIPPING
   getShippingRequests: async (): Promise<ShippingRequest[]> => Promise.resolve(shippingRequests),
-  getShippingRequestByOrder: async(orderId: string): Promise<ShippingRequest | undefined> => Promise.resolve(shippingRequests.find(sr => sr.orderId === orderId)),
-  getShippingRequestsForTransporter: async (transportCompanyId: string): Promise<ShippingRequest[]> => Promise.resolve(shippingRequests.filter(sr => sr.transportCompanyId === transportCompanyId)),
-  createShippingRequest: async (requestData: Omit<ShippingRequest, 'requestId' | 'date' | 'status' | 'deliveryPrice' | 'transportCompanyId'>): Promise<ShippingRequest> => {
+  // FIX: Added missing getShippingRequestByOrder method.
+  getShippingRequestByOrder: async (orderId: string): Promise<ShippingRequest | undefined> => Promise.resolve(shippingRequests.find(sr => sr.orderId === orderId)),
+  getShippingRequestsForStore: async (storeId: string): Promise<ShippingRequest[]> => Promise.resolve(shippingRequests.filter(sr => sr.transportStoreId === storeId)),
+  createShippingRequest: async (requestData: Omit<ShippingRequest, 'requestId' | 'date' | 'status' | 'deliveryPrice' | 'transportStoreId'>): Promise<ShippingRequest> => {
     const newRequest: ShippingRequest = {
       ...requestData,
       requestId: `req${Date.now()}`,
       date: new Date().toISOString().split('T')[0],
       status: ShippingStatus.WAITING,
       deliveryPrice: null,
-      transportCompanyId: null,
+      transportStoreId: null,
     };
     shippingRequests.push(newRequest);
     return Promise.resolve(newRequest);
   },
-  updateShippingRequest: async(requestId: string, status: ShippingStatus, transportCompanyId?: string, price?: number): Promise<ShippingRequest | undefined> => {
+  updateShippingRequest: async(requestId: string, status: ShippingStatus, transportStoreId?: string, price?: number): Promise<ShippingRequest | undefined> => {
     const request = shippingRequests.find(r => r.requestId === requestId);
     if(request) {
         request.status = status;
-        if(transportCompanyId) request.transportCompanyId = transportCompanyId;
+        if(transportStoreId) request.transportStoreId = transportStoreId;
         if(price) request.deliveryPrice = price;
         return Promise.resolve(request);
     }
@@ -308,13 +338,20 @@ export const mockApi = {
 
   // SUBSCRIPTION
   getSubscriptionPlans: async(): Promise<SubscriptionPlan[]> => Promise.resolve(subscriptionPlans),
-  updateSubscription: async(userId: string, planId: string): Promise<User | undefined> => {
-      const user = users.find(u => u.userId === userId);
+  getSubscriptionByStoreId: async(storeId: string): Promise<Subscription | undefined> => Promise.resolve(subscriptions.find(s => s.storeId === storeId)),
+  updateSubscription: async(storeId: string, planId: 'FREE_30' | 'PLAN_6M' | 'PLAN_12M'): Promise<Subscription | undefined> => {
+      let sub = subscriptions.find(s => s.storeId === storeId);
       const plan = subscriptionPlans.find(p => p.planId === planId);
-      if(user && plan) {
-          user.subscriptionPlanId = plan.planId;
-          user.subscriptionEndDate = addDays(new Date(), plan.durationDays).toISOString().split('T')[0];
-          return Promise.resolve(user);
+      if(sub && plan) {
+          sub.planId = plan.planId;
+          sub.startDate = today.toISOString().split('T')[0];
+          sub.endDate = addDays(today, plan.durationDays).toISOString().split('T')[0];
+          sub.status = SubscriptionStatus.ACTIVE; // Mocking payment as instant
+          
+          const store = stores.find(s => s.storeId === storeId);
+          if (store) store.status = StoreStatus.ACTIVE;
+
+          return Promise.resolve(sub);
       }
       return Promise.resolve(undefined);
   }

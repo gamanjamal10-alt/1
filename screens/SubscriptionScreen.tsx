@@ -1,11 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../hooks/useAppContext';
 import { useTranslations } from '../hooks/useTranslations';
-import { SubscriptionPlan } from '../types';
+import { SubscriptionPlan, Subscription } from '../types';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import { CheckCircleIcon } from '../components/icons';
+import { mockApi } from '../services/mockApi';
 
 const SubscriptionCard: React.FC<{ plan: SubscriptionPlan, isCurrent: boolean, onSelect: () => void }> = ({ plan, isCurrent, onSelect }) => {
     const t = useTranslations();
@@ -17,7 +18,7 @@ const SubscriptionCard: React.FC<{ plan: SubscriptionPlan, isCurrent: boolean, o
                 <h3 className="text-2xl font-bold text-primary">{t(plan.nameKey as any)}</h3>
                 <p className="text-4xl font-extrabold my-4">
                     {isFree ? 'Free' : `${plan.price} DZD`}
-                    {!isFree && <span className="text-base font-normal text-gray-500"> / {plan.durationDays / 30} months</span>}
+                    {!isFree && <span className="text-base font-normal text-gray-500"> / {plan.durationDays / 30} {t('months')}</span>}
                 </p>
                 <ul className="space-y-2 mb-6">
                     {plan.features.map(feature => (
@@ -37,20 +38,30 @@ const SubscriptionCard: React.FC<{ plan: SubscriptionPlan, isCurrent: boolean, o
 
 
 const SubscriptionScreen: React.FC = () => {
-    const { currentUser, subscriptionPlans, updateSubscription } = useAppContext();
+    const { currentStore, subscriptionPlans, updateSubscription } = useAppContext();
     const t = useTranslations();
+    const [storeSubscription, setStoreSubscription] = useState<Subscription | null>(null);
     const [showPendingModal, setShowPendingModal] = useState(false);
 
-    if (!currentUser) return null;
+    useEffect(() => {
+        if (currentStore) {
+            mockApi.getSubscriptionByStoreId(currentStore.storeId).then(sub => {
+                if (sub) setStoreSubscription(sub);
+            });
+        }
+    }, [currentStore]);
+
+
+    if (!currentStore || !storeSubscription) return null;
     
-    const currentPlan = subscriptionPlans.find(p => p.planId === currentUser.subscriptionPlanId);
-    const endDate = new Date(currentUser.subscriptionEndDate);
+    const currentPlan = subscriptionPlans.find(p => p.planId === storeSubscription.planId);
+    const endDate = new Date(storeSubscription.endDate);
     const today = new Date();
     const daysRemaining = Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
-    const handleSelectPlan = (planId: string) => {
+    const handleSelectPlan = (planId: 'FREE_30' | 'PLAN_6M' | 'PLAN_12M') => {
         // Mock payment flow
-        updateSubscription(currentUser.userId, planId);
+        updateSubscription(currentStore.storeId, planId);
         setShowPendingModal(true);
     };
 
@@ -60,7 +71,7 @@ const SubscriptionScreen: React.FC = () => {
 
             {currentPlan && (
                 <Card className="mb-8 p-6 bg-secondary">
-                    <h3 className="text-xl font-bold text-primary">{t('currentPlan')}: {t(currentPlan.nameKey as any)}</h3>
+                    <h3 className="text-xl font-bold text-primary">{t('currentPlan')}: {t(currentPlan.nameKey as any)} ({currentStore.storeName})</h3>
                     {daysRemaining > 0 ? (
                         <p className="text-gray-700">{t('daysRemaining', {days: daysRemaining.toString()})}</p>
                     ) : (
@@ -74,7 +85,7 @@ const SubscriptionScreen: React.FC = () => {
                     <SubscriptionCard 
                         key={plan.planId} 
                         plan={plan} 
-                        isCurrent={plan.planId === currentUser.subscriptionPlanId} 
+                        isCurrent={plan.planId === storeSubscription.planId} 
                         onSelect={() => handleSelectPlan(plan.planId)}
                     />
                 ))}

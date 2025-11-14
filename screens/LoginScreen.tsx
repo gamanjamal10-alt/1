@@ -3,21 +3,18 @@ import React, { useState } from 'react';
 import { useAppContext } from '../hooks/useAppContext';
 import { useTranslations } from '../hooks/useTranslations';
 import Button from '../components/common/Button';
-import Modal from '../components/common/Modal';
 import { AgricultureIcon } from '../components/icons';
 
 interface LoginScreenProps {
-  onLoginSuccess: () => void;
   onGoToRegister: () => void;
 }
 
-const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess, onGoToRegister }) => {
+const LoginScreen: React.FC<LoginScreenProps> = ({ onGoToRegister }) => {
   const { login } = useAppContext();
   const t = useTranslations();
   const [email, setEmail] = useState('ahmed.hassan@example.com');
   const [password, setPassword] = useState('password123');
   const [error, setError] = useState('');
-  const [show2FAModal, setShow2FAModal] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -26,27 +23,16 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess, onGoToRegiste
     setIsLoggingIn(true);
     try {
       const user = await login(email, password);
-      if (user) {
-        if (user.enable2FA) {
-            // Simulate 2FA check on first login for enabled users
-            setShow2FAModal(true);
-        } else {
-            onLoginSuccess();
-        }
-      } else {
+      if (!user) {
         setError(t('invalidCredentials'));
       }
+      // Success is handled by App.tsx router
     } catch (err) {
       setError(t('loginError'));
     } finally {
         setIsLoggingIn(false);
     }
   };
-
-  const handle2FAConfirm = () => {
-    setShow2FAModal(false);
-    onLoginSuccess();
-  }
 
   return (
     <div className="min-h-screen bg-secondary flex flex-col justify-center items-center p-4">
@@ -74,18 +60,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess, onGoToRegiste
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               {t('dontHaveAccount')}{' '}
-              <button onClick={onGoToRegister} className="font-medium text-primary hover:underline">{t('createAStore')}</button>
+              <button onClick={onGoToRegister} className="font-medium text-primary hover:underline">{t('createAnAccount')}</button>
             </p>
           </div>
         </div>
       </div>
-      <Modal isOpen={show2FAModal} onClose={() => {}} title={t('twoFactorAuth')}>
-          <div className="space-y-4">
-              <p>{t('enter2FACode')}</p>
-              <input type="text" placeholder="123456" className="w-full p-2 border rounded"/>
-              <Button onClick={handle2FAConfirm}>{t('confirm')}</Button>
-          </div>
-      </Modal>
     </div>
   );
 };

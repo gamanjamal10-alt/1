@@ -5,6 +5,19 @@ export enum UserRole {
   RETAILER = 'Retailer',
   TRANSPORT = 'Transport',
   ADMIN = 'Admin',
+  MAZAYREN = 'Mazayren',
+}
+
+export enum StoreStatus {
+    ACTIVE = 'active',
+    SUSPENDED = 'suspended',
+    EXPIRED = 'expired',
+}
+
+export enum SubscriptionStatus {
+    ACTIVE = 'active',
+    EXPIRED = 'expired',
+    PENDING = 'pending_payment',
 }
 
 export enum OrderType {
@@ -34,7 +47,7 @@ export enum Language {
 }
 
 export interface SubscriptionPlan {
-  planId: string;
+  planId: 'FREE_30' | 'PLAN_6M' | 'PLAN_12M';
   nameKey: string;
   price: number; // DZD
   durationDays: number;
@@ -45,21 +58,39 @@ export interface User {
   userId: string;
   fullName: string;
   email: string;
-  password?: string; // Mocked
+  password?: string;
+  phone: string;
   country: string;
-  enable2FA: boolean;
+  twoFactorEnabled: boolean;
   language: Language;
-  accountType: UserRole;
-  phoneNumber: string;
-  whatsAppLink: string;
-  businessName: string; // Store Name
-  address: string;
-  locationGps: { lat: number; lng: number };
-  profilePhoto: string;
   registrationDate: string;
-  subscriptionPlanId: string;
-  subscriptionEndDate: string;
 }
+
+export interface Store {
+    storeId: string;
+    userId: string;
+    storeName: string;
+    storeType: UserRole;
+    wilaya?: string;
+    createdAt: string;
+    status: StoreStatus;
+    address: string;
+    locationGps: { lat: number; lng: number };
+    profilePhoto: string;
+    whatsAppLink: string;
+    // This will be added in context, not DB
+    subscriptionStatus?: SubscriptionStatus; 
+}
+
+export interface Subscription {
+    subscriptionId: string;
+    storeId: string;
+    planId: 'FREE_30' | 'PLAN_6M' | 'PLAN_12M';
+    startDate: string;
+    endDate: string;
+    status: SubscriptionStatus;
+}
+
 
 export interface Product {
   productId: string;
@@ -71,7 +102,7 @@ export interface Product {
   stockQuantity: number;
   photos: string[];
   description: string;
-  farmerId: string;
+  storeId: string; // Changed from farmerId
   productLocation: string;
   dateAdded: string;
 }
@@ -79,8 +110,8 @@ export interface Product {
 export interface Order {
   orderId: string;
   productId: string;
-  buyerId: string;
-  sellerId: string;
+  buyerStoreId: string; // Changed from buyerId
+  sellerStoreId: string; // Changed from sellerId
   orderType: OrderType;
   quantity: number;
   totalPrice: number;
@@ -95,7 +126,7 @@ export interface ShippingRequest {
   pickupAddress: string;
   deliveryAddress: string;
   deliveryPrice: number | null;
-  transportCompanyId: string | null;
+  transportStoreId: string | null; // Changed from transportCompanyId
   status: ShippingStatus;
   date: string;
 }

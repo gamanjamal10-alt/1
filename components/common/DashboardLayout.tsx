@@ -1,6 +1,9 @@
+
 import React, { ReactNode } from 'react';
 import { useAppContext } from '../../hooks/useAppContext';
 import { useTranslations } from '../../hooks/useTranslations';
+import { Subscription, SubscriptionStatus } from '../../types';
+import { mockApi } from '../../services/mockApi';
 
 interface NavItem {
   label: string;
@@ -15,18 +18,24 @@ interface DashboardLayoutProps {
   children: ReactNode;
 }
 
-// FIX: Destructured setActiveView from props to make it available inside the component.
 const SubscriptionBanner: React.FC<{setActiveView: (view: string) => void}> = ({setActiveView}) => {
-    const { currentUser } = useAppContext();
+    const { currentStore } = useAppContext();
     const t = useTranslations();
+    const [subscription, setSubscription] = React.useState<Subscription | null>(null);
 
-    if (!currentUser || currentUser.subscriptionPlanId !== 'plan1') return null;
+    React.useEffect(() => {
+        if (currentStore) {
+            mockApi.getSubscriptionByStoreId(currentStore.storeId).then(sub => sub && setSubscription(sub));
+        }
+    }, [currentStore]);
 
-    const endDate = new Date(currentUser.subscriptionEndDate);
+    if (!currentStore || !subscription) return null;
+
+    const endDate = new Date(subscription.endDate);
     const today = new Date();
     const daysRemaining = Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
-    if (daysRemaining < 0) {
+    if (daysRemaining < 0 || subscription.status === SubscriptionStatus.EXPIRED) {
         return (
              <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
                 <p className="font-bold">{t('trialExpired')}</p>
@@ -35,12 +44,16 @@ const SubscriptionBanner: React.FC<{setActiveView: (view: string) => void}> = ({
         )
     }
 
-    return (
-        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
-            <p className="font-bold">{t('freeTrial')}</p>
-            <p>{t('trialMessage', { days: daysRemaining.toString() })} <button onClick={() => setActiveView('subscription')} className="font-bold underline">{t('upgrade')}</button></p>
-        </div>
-    )
+    if (subscription.planId === 'FREE_30') {
+        return (
+            <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
+                <p className="font-bold">{t('freeTrial')}</p>
+                <p>{t('trialMessage', { days: daysRemaining.toString() })} <button onClick={() => setActiveView('subscription')} className="font-bold underline">{t('upgrade')}</button></p>
+            </div>
+        )
+    }
+
+    return null;
 }
 
 

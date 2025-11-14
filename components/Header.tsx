@@ -6,7 +6,7 @@ import { AgricultureIcon, LogoutIcon } from './icons';
 import LanguageSelector from './common/LanguageSelector';
 
 const Header: React.FC = () => {
-  const { currentUser, logout } = useAppContext();
+  const { currentUser, currentStore, logout, unselectStore } = useAppContext();
   const t = useTranslations();
 
   return (
@@ -18,14 +18,22 @@ const Header: React.FC = () => {
       <div className="flex items-center space-x-4">
         <LanguageSelector />
         {currentUser && (
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <div className="text-right hidden sm:block">
               <p className="font-semibold">{currentUser.fullName}</p>
-              <p className="text-xs text-gray-300">{currentUser.accountType}</p>
+              {currentStore && <p className="text-xs text-gray-300">{currentStore.storeName}</p>}
             </div>
+            {currentStore && (
+                <button
+                    onClick={unselectStore}
+                    className="bg-secondary text-primary hover:bg-yellow-50 font-bold py-2 px-3 rounded-lg transition duration-300 text-sm"
+                >
+                    {t('switchStore')}
+                </button>
+            )}
             <button
               onClick={logout}
-              className="flex items-center space-x-2 bg-accent hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
+              className="flex items-center space-x-2 bg-accent hover:bg-green-700 text-white font-bold py-2 px-3 rounded-lg transition duration-300"
               aria-label="Logout"
             >
               <LogoutIcon className="h-5 w-5" />

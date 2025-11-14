@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../../hooks/useAppContext';
 import { useTranslations } from '../../hooks/useTranslations';
-import { Product, Order, OrderStatus } from '../../types';
+import { Product, Order, OrderStatus, SubscriptionStatus } from '../../types';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
@@ -10,11 +10,10 @@ import { PlusCircleIcon, EditIcon, BoxIcon, CartIcon, SettingsIcon, DashboardIco
 import { mockApi } from '../../services/mockApi';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import ProfileSettingsScreen from '../ProfileSettingsScreen';
-import MyOrdersScreen from '../MyOrdersScreen';
 import SubscriptionScreen from '../SubscriptionScreen';
 
 const ProductForm: React.FC<{ onClose: () => void; productToEdit?: Product | null }> = ({ onClose, productToEdit }) => {
-    const { addProduct, updateProduct, currentUser } = useAppContext();
+    const { addProduct, updateProduct, currentStore } = useAppContext();
     const t = useTranslations();
     const [formData, setFormData] = useState({
         name: productToEdit?.productName || '',
@@ -31,7 +30,7 @@ const ProductForm: React.FC<{ onClose: () => void; productToEdit?: Product | nul
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!currentUser) return;
+        if (!currentStore) return;
 
         const productData = {
             productName: formData.name,
@@ -42,8 +41,8 @@ const ProductForm: React.FC<{ onClose: () => void; productToEdit?: Product | nul
             description: formData.desc,
             stockQuantity: productToEdit?.stockQuantity || 0, // Stock is managed separately
             photos: productToEdit?.photos || [`https://picsum.photos/seed/${formData.name.replace(/\s/g, '')}/800/600`],
-            farmerId: currentUser.userId,
-            productLocation: currentUser.address,
+            storeId: currentStore.storeId,
+            productLocation: currentStore.address,
         };
 
         if (productToEdit) {
@@ -69,41 +68,23 @@ const ProductForm: React.FC<{ onClose: () => void; productToEdit?: Product | nul
     );
 };
 
-const StockForm: React.FC<{product: Product, onClose: () => void}> = ({ product, onClose }) => {
-    const { updateProductStock } = useAppContext();
-    const t = useTranslations();
-    const [stock, setStock] = useState(product.stockQuantity);
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        await updateProductStock(product.productId, stock);
-        onClose();
-    };
-
-    return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <h4 className="text-xl font-semibold">{product.productName}</h4>
-            <input type="number" value={stock} onChange={e => setStock(parseInt(e.target.value))} className="w-full p-2 border rounded" required />
-            <Button type="submit">{t('updateStock')}</Button>
-        </form>
-    )
-}
-
 const FarmerDashboard: React.FC = () => {
-    const { currentUser, updateOrderStatus, refreshData, products, users } = useAppContext();
+    const { currentStore, updateOrderStatus, refreshData, products, orders: allOrders, userStores } = useAppContext();
     const t = useTranslations();
     const [activeView, setActiveView] = useState('dashboard');
     const [myProducts, setMyProducts] = useState<Product[]>([]);
     const [incomingOrders, setIncomingOrders] = useState<Order[]>([]);
-    const [modal, setModal] = useState<'add' | 'edit' | 'stock' | null>(null);
+    const [modal, setModal] = useState<'add' | 'edit' | null>(null);
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
+    const isExpired = currentStore?.subscriptionStatus === SubscriptionStatus.EXPIRED;
+
     useEffect(() => {
-        if (currentUser) {
-            mockApi.getProductsByFarmer(currentUser.userId).then(setMyProducts);
-            mockApi.getOrdersForSeller(currentUser.userId).then(setIncomingOrders);
+        if (currentStore) {
+            mockApi.getProductsByStore(currentStore.storeId).then(setMyProducts);
+            mockApi.getOrdersForSellerStore(currentStore.storeId).then(setIncomingOrders);
         }
-    }, [currentUser, refreshData]);
+    }, [currentStore, refreshData]);
 
     const navItems = [
         { label: 'dashboard', view: 'dashboard', icon: DashboardIcon },
@@ -116,6 +97,10 @@ const FarmerDashboard: React.FC = () => {
     const activeOrders = incomingOrders.filter(o => o.orderStatus === OrderStatus.PENDING || o.orderStatus === OrderStatus.CONFIRMED);
 
     const handleUpdateStatus = async (orderId: string, status: OrderStatus) => {
+        if (isExpired) {
+            alert(t('subscriptionExpiredError'));
+            return;
+        }
         await updateOrderStatus(orderId, status);
         alert(`Order ${status.toLowerCase()}!`);
     }
@@ -127,7 +112,7 @@ const FarmerDashboard: React.FC = () => {
                     <div>
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="text-2xl font-semibold text-primary">{t('myProducts')}</h3>
-                            <Button variant="accent" onClick={() => { setSelectedProduct(null); setModal('add')}} Icon={PlusCircleIcon}>{t('addProduct')}</Button>
+                            <Button variant="accent" onClick={() => { setSelectedProduct(null); setModal('add')}} Icon={PlusCircleIcon} disabled={isExpired}>{t('addProduct')}</Button>
                         </div>
                         <div className="space-y-4">
                             {myProducts.map(p => (
@@ -138,8 +123,7 @@ const FarmerDashboard: React.FC = () => {
                                             <p>{t('stock')}: {p.stockQuantity} kg</p>
                                         </div>
                                         <div className="flex space-x-2">
-                                            <Button variant="secondary" className="w-auto" onClick={() => {setSelectedProduct(p); setModal('stock')}}>{t('manageStock')}</Button>
-                                            <Button variant="secondary" className="w-auto" onClick={() => {setSelectedProduct(p); setModal('edit')}} Icon={EditIcon}></Button>
+                                            <Button variant="secondary" className="w-auto" onClick={() => {setSelectedProduct(p); setModal('edit')}} Icon={EditIcon} disabled={isExpired}></Button>
                                         </div>
                                     </div>
                                 </Card>
@@ -152,21 +136,23 @@ const FarmerDashboard: React.FC = () => {
                     <div>
                         <h3 className="text-2xl font-semibold text-primary mb-4">{t('incomingOrders')}</h3>
                          <div className="space-y-4">
-                            {incomingOrders.filter(o => o.orderStatus === OrderStatus.PENDING || o.orderStatus === OrderStatus.CONFIRMED).map(o => (
+                            {activeOrders.map(o => {
+                                const buyerStore = userStores.find(s => s.storeId === o.buyerStoreId);
+                                return (
                                 <Card key={o.orderId}>
                                     <div className="p-4">
                                         <h4 className="font-bold text-lg text-primary">{products.find(p=>p.productId === o.productId)?.productName}</h4>
-                                        <p>{t('buyer')}: {users.find(u=>u.userId === o.buyerId)?.businessName}</p>
+                                        <p>{t('buyer')}: {buyerStore?.storeName}</p>
                                         <p>{t('status')}: <span className="font-semibold">{o.orderStatus}</span></p>
                                     </div>
                                     {o.orderStatus === OrderStatus.PENDING && (
                                         <div className="p-4 bg-gray-50 border-t flex space-x-2">
-                                            <Button variant="accent" onClick={() => handleUpdateStatus(o.orderId, OrderStatus.CONFIRMED)}>{t('confirm')}</Button>
-                                            <Button variant="secondary" onClick={() => handleUpdateStatus(o.orderId, OrderStatus.CANCELLED)}>{t('cancel')}</Button>
+                                            <Button variant="accent" onClick={() => handleUpdateStatus(o.orderId, OrderStatus.CONFIRMED)} disabled={isExpired}>{t('confirm')}</Button>
+                                            <Button variant="secondary" onClick={() => handleUpdateStatus(o.orderId, OrderStatus.CANCELLED)} disabled={isExpired}>{t('cancel')}</Button>
                                         </div>
                                     )}
                                 </Card>
-                            ))}
+                            )})}
                         </div>
                     </div>
                 );
@@ -176,15 +162,17 @@ const FarmerDashboard: React.FC = () => {
                      <div>
                         <h3 className="text-2xl font-semibold text-primary mb-4">{t('orderHistory')}</h3>
                          <div className="space-y-4">
-                            {orderHistory.map(o => (
+                            {orderHistory.map(o => {
+                                const buyerStore = userStores.find(s => s.storeId === o.buyerStoreId);
+                                return (
                                 <Card key={o.orderId}>
                                     <div className="p-4">
                                         <h4 className="font-bold text-lg text-primary">{products.find(p=>p.productId === o.productId)?.productName}</h4>
-                                        <p>{t('buyer')}: {users.find(u=>u.userId === o.buyerId)?.businessName}</p>
+                                        <p>{t('buyer')}: {buyerStore?.storeName}</p>
                                         <p>{t('status')}: <span className="font-semibold">{o.orderStatus}</span></p>
                                     </div>
                                 </Card>
-                            ))}
+                            )})}
                         </div>
                     </div>
                 )
@@ -216,9 +204,6 @@ const FarmerDashboard: React.FC = () => {
             {renderView()}
             <Modal isOpen={modal === 'add' || modal === 'edit'} onClose={() => setModal(null)} title={modal === 'edit' ? t('editProduct') : t('addNewProduct')}>
                 <ProductForm onClose={() => setModal(null)} productToEdit={selectedProduct} />
-            </Modal>
-            <Modal isOpen={modal === 'stock'} onClose={() => setModal(null)} title={t('updateStock')}>
-                {selectedProduct && <StockForm product={selectedProduct} onClose={() => setModal(null)} />}
             </Modal>
         </DashboardLayout>
     );

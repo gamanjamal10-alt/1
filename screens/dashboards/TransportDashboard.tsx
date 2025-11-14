@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../../hooks/useAppContext';
 import { useTranslations } from '../../hooks/useTranslations';
-import { ShippingRequest, ShippingStatus } from '../../types';
+import { ShippingRequest, ShippingStatus, SubscriptionStatus } from '../../types';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import { MapPinIcon, TruckIcon, DashboardIcon, HistoryIcon, SettingsIcon } from '../../components/icons';
@@ -11,17 +11,20 @@ import ProfileSettingsScreen from '../ProfileSettingsScreen';
 import SubscriptionScreen from '../SubscriptionScreen';
 
 const ShippingRequestCard: React.FC<{ request: ShippingRequest, isHistory?: boolean }> = ({ request, isHistory = false }) => {
-    const { currentUser, updateShippingRequest, users, orders } = useAppContext();
+    const { currentStore, updateShippingRequest } = useAppContext();
     const t = useTranslations();
-    const order = orders.find(o => o.orderId === request.orderId);
-    if (!order) return null;
-    const isMyJob = request.transportCompanyId === currentUser?.userId;
+    const isMyJob = request.transportStoreId === currentStore?.storeId;
+    const isExpired = currentStore?.subscriptionStatus === SubscriptionStatus.EXPIRED;
 
     const handleAccept = () => {
+        if (isExpired) {
+             alert(t('subscriptionExpiredError'));
+            return;
+        }
         const priceStr = prompt(t('enterDeliveryPricePrompt'));
         const price = parseFloat(priceStr || '0');
-        if (price > 0 && currentUser) {
-            updateShippingRequest(request.requestId, ShippingStatus.ACCEPTED, currentUser.userId, price);
+        if (price > 0 && currentStore) {
+            updateShippingRequest(request.requestId, ShippingStatus.ACCEPTED, currentStore.storeId, price);
             alert(t('deliveryRequestAccepted'));
         } else {
             alert(t('invalidPrice'));
@@ -29,6 +32,10 @@ const ShippingRequestCard: React.FC<{ request: ShippingRequest, isHistory?: bool
     };
     
     const handleUpdateStatus = (status: ShippingStatus) => {
+        if (isExpired) {
+             alert(t('subscriptionExpiredError'));
+            return;
+        }
         updateShippingRequest(request.requestId, status);
         alert(`${t('deliveryStatusUpdated')} ${status}!`);
     };
@@ -54,9 +61,9 @@ const ShippingRequestCard: React.FC<{ request: ShippingRequest, isHistory?: bool
             </div>
             {!isHistory && (
                  <div className="p-4 bg-gray-50 border-t">
-                    {request.status === ShippingStatus.WAITING && (<Button variant="accent" onClick={handleAccept}>{t('acceptRequest')}</Button>)}
-                    {isMyJob && request.status === ShippingStatus.ACCEPTED && (<Button onClick={() => handleUpdateStatus(ShippingStatus.ON_WAY)} Icon={TruckIcon}>{t('startDelivery')}</Button>)}
-                    {isMyJob && request.status === ShippingStatus.ON_WAY && (<Button variant="primary" onClick={() => handleUpdateStatus(ShippingStatus.DELIVERED)}>{t('markAsDelivered')}</Button>)}
+                    {request.status === ShippingStatus.WAITING && (<Button variant="accent" onClick={handleAccept} disabled={isExpired}>{t('acceptRequest')}</Button>)}
+                    {isMyJob && request.status === ShippingStatus.ACCEPTED && (<Button onClick={() => handleUpdateStatus(ShippingStatus.ON_WAY)} Icon={TruckIcon} disabled={isExpired}>{t('startDelivery')}</Button>)}
+                    {isMyJob && request.status === ShippingStatus.ON_WAY && (<Button variant="primary" onClick={() => handleUpdateStatus(ShippingStatus.DELIVERED)} disabled={isExpired}>{t('markAsDelivered')}</Button>)}
                 </div>
             )}
         </Card>
@@ -64,7 +71,7 @@ const ShippingRequestCard: React.FC<{ request: ShippingRequest, isHistory?: bool
 };
 
 const TransportDashboard: React.FC = () => {
-    const { shippingRequests, currentUser } = useAppContext();
+    const { shippingRequests, currentStore } = useAppContext();
     const t = useTranslations();
     const [activeView, setActiveView] = useState('requests');
     
@@ -78,7 +85,7 @@ const TransportDashboard: React.FC = () => {
     const renderView = () => {
         switch(activeView) {
             case 'active': {
-                const myJobs = shippingRequests.filter(r => r.transportCompanyId === currentUser?.userId && (r.status === ShippingStatus.ACCEPTED || r.status === ShippingStatus.ON_WAY));
+                const myJobs = shippingRequests.filter(r => r.transportStoreId === currentStore?.storeId && (r.status === ShippingStatus.ACCEPTED || r.status === ShippingStatus.ON_WAY));
                 return (
                     <div>
                         <h3 className="text-2xl font-semibold text-primary mb-4">{t('myActiveDeliveries')}</h3>
@@ -87,7 +94,7 @@ const TransportDashboard: React.FC = () => {
                 );
             }
             case 'history': {
-                const jobHistory = shippingRequests.filter(r => r.transportCompanyId === currentUser?.userId && (r.status === ShippingStatus.DELIVERED || r.status === ShippingStatus.REJECTED));
+                const jobHistory = shippingRequests.filter(r => r.transportStoreId === currentStore?.storeId && (r.status === ShippingStatus.DELIVERED || r.status === ShippingStatus.REJECTED));
                  return (
                     <div>
                         <h3 className="text-2xl font-semibold text-primary mb-4">{t('myDeliveryHistory')}</h3>
