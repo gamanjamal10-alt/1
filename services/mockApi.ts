@@ -59,6 +59,7 @@ let stores: Store[] = [
         profilePhoto: 'https://picsum.photos/seed/farmer1/200',
         whatsAppLink: 'https://wa.me/213512345678',
         categories: ['Vegetables', 'Fruits'],
+        storeLogo: '',
         themeColors: { primary: '#004e92', secondary: '#f4e9d2', accent: '#6da34d' },
     },
     {
@@ -75,6 +76,7 @@ let stores: Store[] = [
         profilePhoto: 'https://picsum.photos/seed/wholesaler1/200',
         whatsAppLink: 'https://wa.me/213623456789',
         categories: ['Fruits', 'Imported Goods'],
+        storeLogo: '',
         themeColors: { primary: '#004e92', secondary: '#f4e9d2', accent: '#6da34d' },
     },
     {
@@ -91,6 +93,7 @@ let stores: Store[] = [
         profilePhoto: 'https://picsum.photos/seed/retailer1/200',
         whatsAppLink: 'https://wa.me/213634567890',
         categories: ['Fresh Produce', 'Dairy', 'Bakery'],
+        storeLogo: '',
         themeColors: { primary: '#004e92', secondary: '#f4e9d2', accent: '#6da34d' },
     },
     {
@@ -106,6 +109,7 @@ let stores: Store[] = [
         locationGps: { lat: 36.5931, lng: 2.4439 },
         profilePhoto: 'https://picsum.photos/seed/transport1/200',
         whatsAppLink: 'https://wa.me/213512345678',
+        storeLogo: '',
         themeColors: { primary: '#004e92', secondary: '#f4e9d2', accent: '#6da34d' },
     },
      {
@@ -121,6 +125,7 @@ let stores: Store[] = [
         locationGps: { lat: 36.775, lng: 3.05 },
         profilePhoto: 'https://picsum.photos/seed/admin1/200',
         whatsAppLink: 'https://wa.me/213700000000',
+        storeLogo: '',
         themeColors: { primary: '#004e92', secondary: '#f4e9d2', accent: '#6da34d' },
     },
 ]
@@ -221,6 +226,7 @@ export const mockApi = {
           profilePhoto: `https://picsum.photos/seed/store${Date.now()}/200`,
           whatsAppLink: `https://wa.me/${user.phone.replace(/\D/g, '')}`,
           categories: ['General'],
+          storeLogo: '',
           themeColors: {
             primary: '#004e92',
             secondary: '#f4e9d2',

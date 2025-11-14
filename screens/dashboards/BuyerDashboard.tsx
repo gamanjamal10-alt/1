@@ -1,35 +1,10 @@
+
 import React, { useState, useMemo } from 'react';
 import { useAppContext } from '../../hooks/useAppContext';
 import { Product, UserRole, OrderType } from '../../types';
-import Card from '../../components/common/Card';
-import { SearchIcon, MapPinIcon, BoxIcon } from '../../components/icons';
+import { SearchIcon } from '../../components/icons';
 import { useTranslations } from '../../hooks/useTranslations';
-
-const ProductCard: React.FC<{ product: Product; onSelect: (productId: string) => void, orderType: OrderType }> = ({ product, onSelect, orderType }) => {
-    const { stores } = useAppContext();
-    const t = useTranslations();
-    const farmerStore = stores.find(s => s.storeId === product.storeId);
-    const price = orderType === OrderType.WHOLESALE ? product.wholesalePrice : product.retailPrice;
-
-    return (
-        <Card className="cursor-pointer hover:shadow-xl hover:scale-[1.02] transition-all duration-300" onClick={() => onSelect(product.productId)}>
-            <img src={product.photos[0]} alt={product.productName} className="w-full h-48 object-cover" />
-            <div className="p-4">
-                <h3 className="text-xl font-bold text-primary">{product.productName}</h3>
-                <p className="text-gray-500 text-sm mb-2">{product.category}</p>
-                <p className="text-2xl font-black text-accent mb-2">{price} <span className="text-base font-normal text-gray-600">{t('currency')} / kg</span></p>
-                <div className="flex items-center text-gray-600 text-sm mb-1">
-                    <BoxIcon className="w-4 h-4 me-2"/>
-                    <span>Stock: {product.stockQuantity} kg</span>
-                </div>
-                 <div className="flex items-center text-gray-600 text-sm">
-                    <MapPinIcon className="w-4 h-4 me-2"/>
-                    <span>{farmerStore?.storeName}, {product.productLocation}</span>
-                </div>
-            </div>
-        </Card>
-    );
-}
+import ProductCard from '../../components/common/ProductCard';
 
 interface BuyerDashboardProps {
     role: UserRole.WHOLESALER | UserRole.RETAILER;
@@ -37,7 +12,7 @@ interface BuyerDashboardProps {
 }
 
 const BuyerDashboard: React.FC<BuyerDashboardProps> = ({ role, onSelectProduct }) => {
-    const { products } = useAppContext();
+    const { products, stores } = useAppContext();
     const t = useTranslations();
     const [searchTerm, setSearchTerm] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('All');
@@ -81,7 +56,7 @@ const BuyerDashboard: React.FC<BuyerDashboardProps> = ({ role, onSelectProduct }
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredProducts.map(product => (
-                    <ProductCard key={product.productId} product={product} onSelect={onSelectProduct} orderType={orderType} />
+                    <ProductCard key={product.productId} product={product} onSelect={onSelectProduct} orderType={orderType} stores={stores} />
                 ))}
             </div>
         </div>

@@ -29,6 +29,8 @@ interface AppContextType {
   isHelpVisible: boolean;
   helpPosition: HelpPosition | null;
   isPreviewing: boolean;
+  isMarketplaceOpen: boolean;
+  viewedStoreId: string | null;
 
   // Actions
   login: (email: string, password: string) => Promise<User | null>;
@@ -56,6 +58,9 @@ interface AppContextType {
   setIsPreviewing: (isPreviewing: boolean) => void;
   placeOrder: (orderData: Omit<Order, 'orderId' | 'date' | 'orderStatus' | 'totalPrice'>) => Promise<void>;
   getAssistantResponse: (question: string) => Promise<string>;
+  openMarketplace: () => void;
+  closeMarketplace: () => void;
+  setViewedStoreId: (storeId: string | null) => void;
 }
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -81,6 +86,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // Preview State
   const [isPreviewing, setIsPreviewing] = useState(false);
+
+  // Marketplace State
+  const [isMarketplaceOpen, setIsMarketplaceOpen] = useState(false);
+  const [viewedStoreId, setViewedStoreId] = useState<string | null>(null);
 
   const getTranslation = (key: keyof typeof translations.en, replacements?: { [key: string]: string }) => {
       const langKey = language === Language.AR ? 'ar' : language === Language.FR ? 'fr' : 'en';
@@ -141,21 +150,29 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return null;
   };
 
+  const closeMarketplace = () => {
+      setIsMarketplaceOpen(false);
+      setViewedStoreId(null);
+  }
+
   const logout = () => {
     setCurrentUser(null);
     setCurrentStore(null);
     setUserStores([]);
     setIsPreviewing(false);
+    closeMarketplace();
   };
 
   const selectStore = (store: Store) => {
       setCurrentStore(store);
       setIsPreviewing(false);
+      closeMarketplace();
   };
   
   const unselectStore = () => {
       setCurrentStore(null);
       setIsPreviewing(false);
+      closeMarketplace();
   }
   
   const refreshData = useCallback(() => {
@@ -349,6 +366,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     isHelpVisible,
     helpPosition,
     isPreviewing,
+    isMarketplaceOpen,
+    viewedStoreId,
     login,
     logout,
     registerUser,
@@ -373,6 +392,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setIsPreviewing,
     placeOrder,
     getAssistantResponse,
+    openMarketplace: () => setIsMarketplaceOpen(true),
+    closeMarketplace,
+    setViewedStoreId,
   };
 
   return (

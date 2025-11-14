@@ -36,6 +36,7 @@ const ProfileSettingsScreen: React.FC<StoreSettingsScreenProps> = ({ setActiveVi
   const [showDeleteStoreModal, setShowDeleteStoreModal] = useState(false);
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
   const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [showLogoModal, setShowLogoModal] = useState(false);
   const [confirmationText, setConfirmationText] = useState('');
 
 
@@ -84,15 +85,25 @@ const ProfileSettingsScreen: React.FC<StoreSettingsScreenProps> = ({ setActiveVi
     setShowPhotoModal(false);
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>, type: 'photo' | 'logo') => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        handlePhotoUpdate(reader.result as string);
+          if (type === 'photo') {
+            handlePhotoUpdate(reader.result as string);
+          } else {
+            handleLogoUpdate(reader.result as string);
+          }
       };
       reader.readAsDataURL(file);
     }
+  };
+  
+  const handleLogoUpdate = async (newLogoUrl: string) => {
+      await updateStore(currentStore.storeId, { storeLogo: newLogoUrl });
+      alert(t('logoUpdatedSuccess'));
+      setShowLogoModal(false);
   };
 
   const isPhotoChangeAllowed = currentStore.storeType === UserRole.FARMER || currentStore.storeType === UserRole.RETAILER;
@@ -138,6 +149,24 @@ const ProfileSettingsScreen: React.FC<StoreSettingsScreenProps> = ({ setActiveVi
                    {t('manageSubscription')}
                </Button>
            </div>
+        </div>
+      </Card>
+      
+      {/* Store Branding Card */}
+      <Card className="max-w-3xl mb-8">
+        <div className="p-6">
+            <h3 className="text-2xl font-bold text-primary mb-2">{t('storeBranding')}</h3>
+            <p className="text-gray-600 mb-4">{t('storeBrandingDesc')}</p>
+            <div className="flex items-center space-x-4">
+                <div className="w-24 h-24 bg-gray-200 rounded-md flex items-center justify-center">
+                    {currentStore.storeLogo ? (
+                        <img src={currentStore.storeLogo} alt="Store Logo" className="w-full h-full object-contain rounded-md" />
+                    ) : (
+                        <span className="text-xs text-gray-500">{t('noLogo')}</span>
+                    )}
+                </div>
+                <Button onClick={() => setShowLogoModal(true)} className="w-auto">{t('changeLogo')}</Button>
+            </div>
         </div>
       </Card>
 
@@ -189,7 +218,7 @@ const ProfileSettingsScreen: React.FC<StoreSettingsScreenProps> = ({ setActiveVi
         <div className="space-y-6">
             <div>
                 <label htmlFor="photo-upload" className="block text-lg font-semibold text-primary mb-2">{t('uploadFromDevice')}</label>
-                <input id="photo-upload" type="file" accept="image/*" onChange={handleFileUpload} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-blue-800"/>
+                <input id="photo-upload" type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'photo')} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-blue-800"/>
             </div>
             <div>
                  <h4 className="text-lg font-semibold text-primary mb-2">{t('chooseAnAvatar')}</h4>
@@ -200,6 +229,16 @@ const ProfileSettingsScreen: React.FC<StoreSettingsScreenProps> = ({ setActiveVi
                         </button>
                     ))}
                  </div>
+            </div>
+        </div>
+      </Modal>
+      
+      <Modal isOpen={showLogoModal} onClose={() => setShowLogoModal(false)} title={t('changeLogo')}>
+        <div className="space-y-6">
+            <div>
+                <label htmlFor="logo-upload" className="block text-lg font-semibold text-primary mb-2">{t('uploadFromDevice')}</label>
+                <p className="text-sm text-gray-500 mb-2">{t('logoSpecs')}</p>
+                <input id="logo-upload" type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'logo')} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-blue-800"/>
             </div>
         </div>
       </Modal>

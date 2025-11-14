@@ -28,3 +28,4 @@ export { default as EyeIcon } from './EyeIcon';
 export { default as SparklesIcon } from './SparklesIcon';
 export { default as PackageIcon } from './PackageIcon';
 export { default as ClipboardListIcon } from './ClipboardListIcon';
+export { default as StoreIcon } from './StoreIcon';

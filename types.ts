@@ -96,6 +96,7 @@ export interface Store {
     profilePhoto: string;
     whatsAppLink: string;
     categories?: string[];
+    storeLogo?: string;
     themeColors?: {
         primary: string;
         secondary: string;

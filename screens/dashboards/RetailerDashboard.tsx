@@ -6,7 +6,7 @@ import { Product, Order, OrderStatus, SubscriptionStatus, Store, HelpTopic, User
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
-import { PlusCircleIcon, EditIcon, BoxIcon, CartIcon, SettingsIcon, DashboardIcon, HistoryIcon, QuestionMarkCircleIcon, PhoneIcon, WhatsAppIcon, TagIcon, TrashIcon, EyeIcon, HomeIcon } from '../../components/icons';
+import { PlusCircleIcon, EditIcon, BoxIcon, CartIcon, SettingsIcon, DashboardIcon, HistoryIcon, QuestionMarkCircleIcon, PhoneIcon, WhatsAppIcon, TagIcon, TrashIcon, EyeIcon, HomeIcon, SearchIcon } from '../../components/icons';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import ProfileSettingsScreen from '../ProfileSettingsScreen';
 import SubscriptionScreen from '../SubscriptionScreen';
@@ -283,7 +283,7 @@ const RetailerDashboard: React.FC = () => {
 
     const navItems = [
         { label: 'dashboard', view: 'dashboard', icon: DashboardIcon },
-        { label: 'marketplace', view: 'marketplace', icon: HomeIcon },
+        { label: 'browseProducts', view: 'marketplace', icon: SearchIcon },
         { label: 'myPurchases', view: 'purchases', icon: CartIcon },
         { label: 'purchaseHistory', view: 'purchaseHistory', icon: HistoryIcon },
         { label: 'myProducts', view: 'products', icon: BoxIcon },

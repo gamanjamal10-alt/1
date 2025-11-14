@@ -12,11 +12,13 @@ import AdminDashboard from './screens/dashboards/AdminDashboard';
 import StoreSelectionScreen from './screens/StoreSelectionScreen';
 import UserRegisterScreen from './screens/UserRegisterScreen';
 import HelpTooltip from './components/common/HelpTooltip';
+import MarketplaceScreen from './screens/MarketplaceScreen';
+import StorefrontScreen from './screens/StorefrontScreen';
 
 type AuthState = 'login' | 'register';
 
 const App: React.FC = () => {
-  const { currentUser, currentStore, language } = useAppContext();
+  const { currentUser, currentStore, language, isMarketplaceOpen, viewedStoreId } = useAppContext();
   const [authState, setAuthState] = useState<AuthState>('login');
   
   useEffect(() => {
@@ -68,6 +70,17 @@ const App: React.FC = () => {
               return <UserRegisterScreen onRegisterSuccess={() => setAuthState('login')} />;
           }
           return <LoginScreen onGoToRegister={() => setAuthState('register')} />;
+      }
+      
+      if (isMarketplaceOpen) {
+          return (
+             <div className="min-h-screen bg-secondary">
+                <Header />
+                <main>
+                    {viewedStoreId ? <StorefrontScreen /> : <MarketplaceScreen />}
+                </main>
+            </div>
+          )
       }
 
       if (currentUser && !currentStore) {
