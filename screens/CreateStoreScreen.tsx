@@ -86,7 +86,7 @@ const CreateStoreScreen: React.FC<CreateStoreScreenProps> = ({ onStoreCreated })
             )}
             
             {error && <p className="text-red-500 text-sm">{error}</p>}
-            <div className="flex space-x-2 pt-4">
+            <div className="flex space-x-2 rtl:space-x-reverse pt-4">
                 <Button variant="secondary" onClick={onStoreCreated} className="w-1/2">{t('cancel')}</Button>
                 <Button type="submit" disabled={isCreating} className="w-1/2">{isCreating ? '...' : t('createAStore')}</Button>
             </div>

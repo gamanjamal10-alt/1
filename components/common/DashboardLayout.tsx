@@ -37,7 +37,7 @@ const SubscriptionBanner: React.FC<{setActiveView: (view: string) => void}> = ({
 
     if (daysRemaining < 0 || subscription.status === SubscriptionStatus.EXPIRED) {
         return (
-             <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
+             <div className="bg-red-100 border-s-4 border-red-500 text-red-700 p-4" role="alert">
                 <p className="font-bold">{t('trialExpired')}</p>
                 <p>{t('trialExpiredMessage')} <button onClick={() => setActiveView('subscription')} className="font-bold underline">{t('upgradeNow')}</button></p>
             </div>
@@ -46,7 +46,7 @@ const SubscriptionBanner: React.FC<{setActiveView: (view: string) => void}> = ({
 
     if (subscription.planId === 'FREE_30') {
         return (
-            <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
+            <div className="bg-yellow-100 border-s-4 border-yellow-500 text-yellow-700 p-4" role="alert">
                 <p className="font-bold">{t('freeTrial')}</p>
                 <p>{t('trialMessage', { days: daysRemaining.toString() })} <button onClick={() => setActiveView('subscription')} className="font-bold underline">{t('upgrade')}</button></p>
             </div>
@@ -67,7 +67,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ navItems, activeView,
           <button
             key={view}
             onClick={() => setActiveView(view)}
-            className={`w-full flex items-center space-x-3 p-3 rounded-lg text-left transition-colors duration-200 ${
+            className={`w-full flex items-center space-x-3 rtl:space-x-reverse p-3 rounded-lg text-start transition-colors duration-200 ${
               activeView === view
                 ? 'bg-accent text-white font-bold'
                 : 'hover:bg-blue-800'

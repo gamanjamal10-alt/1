@@ -54,8 +54,8 @@ const ShippingRequestCard: React.FC<{ request: ShippingRequest, isHistory?: bool
                     }`}>{request.status}</span>
                 </div>
                 <div className="my-3 space-y-2 text-gray-700">
-                     <div className="flex items-start"><MapPinIcon className="w-5 h-5 mr-2 mt-1 text-accent" /><div><span className="font-semibold">{t('from')}:</span> {request.pickupAddress}</div></div>
-                     <div className="flex items-start"><MapPinIcon className="w-5 h-5 mr-2 mt-1 text-red-500" /><div><span className="font-semibold">{t('to')}:</span> {request.deliveryAddress}</div></div>
+                     <div className="flex items-start"><MapPinIcon className="w-5 h-5 me-2 mt-1 text-accent" /><div><span className="font-semibold">{t('from')}:</span> {request.pickupAddress}</div></div>
+                     <div className="flex items-start"><MapPinIcon className="w-5 h-5 me-2 mt-1 text-red-500" /><div><span className="font-semibold">{t('to')}:</span> {request.deliveryAddress}</div></div>
                 </div>
                 {request.deliveryPrice && <p>{t('price')}: <span className="font-bold text-lg">{request.deliveryPrice} DH</span></p>}
             </div>

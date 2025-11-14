@@ -60,7 +60,7 @@ const OrderItem: React.FC<{ order: Order }> = ({ order }) => {
                         <h4 className="font-bold text-lg text-primary">{product?.productName}</h4>
                         <p className="text-sm text-gray-600">{t('from')}: {sellerStore?.storeName}</p>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 rtl:space-x-reverse">
                          <span className="font-semibold">{order.orderStatus}</span>
                          <StatusIcon status={order.orderStatus} />
                     </div>
@@ -68,7 +68,7 @@ const OrderItem: React.FC<{ order: Order }> = ({ order }) => {
                 <div className="flex justify-between items-center mt-2 text-gray-700">
                     <p>{t('quantity')}: {order.quantity} kg | {t('total')}: {order.totalPrice} DH</p>
                     <div className="flex items-center text-sm">
-                        <CalendarIcon className="w-4 h-4 mr-1"/>
+                        <CalendarIcon className="w-4 h-4 me-1"/>
                         <span>{order.date}</span>
                     </div>
                 </div>
@@ -76,7 +76,7 @@ const OrderItem: React.FC<{ order: Order }> = ({ order }) => {
                 {order.orderStatus === OrderStatus.CONFIRMED && (
                     <div className="mt-4 pt-4 border-t">
                         {shippingRequest ? (
-                             <div className="flex items-center space-x-2">
+                             <div className="flex items-center space-x-2 rtl:space-x-reverse">
                                 <StatusIcon status={shippingRequest.status} />
                                 <span>{t('shipping')}: {shippingRequest.status}</span>
                                 {shippingRequest.deliveryPrice && <span className="font-bold">{shippingRequest.deliveryPrice} DH</span>}

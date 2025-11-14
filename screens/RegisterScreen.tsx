@@ -94,7 +94,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ role, onRegisterSuccess
                 <input type="password" name="password" placeholder={t('password')} value={formData.password} onChange={handleChange} required className="p-2 border rounded" />
                 <input type="password"name="confirmPassword" placeholder={t('confirmPassword')} value={formData.confirmPassword} onChange={handleChange} required className="p-2 border rounded" />
             </div>
-             <div className="flex items-center space-x-2">
+             <div className="flex items-center space-x-2 rtl:space-x-reverse">
                 {/* FIX: Changed name and id from enable2FA to twoFactorEnabled */}
                 <input type="checkbox" id="twoFactorEnabled" name="twoFactorEnabled" checked={formData.twoFactorEnabled} onChange={handleChange} className="h-4 w-4 text-primary focus:ring-accent border-gray-300 rounded"/>
                 <label htmlFor="twoFactorEnabled" className="text-sm text-gray-600">{t('enable2FA')}</label>

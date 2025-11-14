@@ -38,7 +38,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onGoToRegister }) => {
     <div className="min-h-screen bg-secondary flex flex-col justify-center items-center p-4">
       <div className="w-full max-w-md">
         <header className="text-center mb-8">
-          <div className="inline-flex items-center space-x-4 mb-4">
+          <div className="inline-flex items-center space-x-4 rtl:space-x-reverse mb-4">
             <AgricultureIcon className="w-16 h-16 text-accent" />
             <h1 className="text-4xl font-extrabold text-primary">{t('soukElFellah')}</h1>
           </div>

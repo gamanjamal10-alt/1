@@ -35,7 +35,7 @@ const ChooseStoreTypeScreen: React.FC<ChooseStoreTypeScreenProps> = ({ onSelectR
   return (
     <div className="min-h-screen bg-secondary flex flex-col items-center justify-center p-4">
        <header className="text-center mb-12">
-            <div className="inline-flex items-center space-x-4 mb-4">
+            <div className="inline-flex items-center space-x-4 rtl:space-x-reverse mb-4">
                 <AgricultureIcon className="w-20 h-20 text-accent" />
                 <h1 className="text-5xl font-extrabold text-primary">{t('soukElFellah')}</h1>
             </div>

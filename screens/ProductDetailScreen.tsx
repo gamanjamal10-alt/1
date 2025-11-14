@@ -77,7 +77,7 @@ const OrderForm: React.FC<{product: Product, orderType: OrderType, onClose: () =
                     className="w-full p-2 border rounded"
                 ></textarea>
             </div>
-            <div className="text-2xl font-bold text-right">
+            <div className="text-2xl font-bold text-end">
                 {t('total')}: <span className="text-accent">{(quantity * price).toFixed(2)} DH</span>
             </div>
             <Button onClick={handlePlaceOrder} disabled={isExpired}>{t('confirmOrder')}</Button>
@@ -109,7 +109,7 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ productId, on
 
     return (
         <div className="p-4 md:p-8">
-            <button onClick={onBack} className="flex items-center space-x-2 text-primary font-semibold mb-6 hover:underline">
+            <button onClick={onBack} className="flex items-center space-x-2 rtl:space-x-reverse text-primary font-semibold mb-6 hover:underline">
                 <ChevronLeftIcon className="w-5 h-5"/>
                 <span>{t('backToProducts')}</span>
             </button>
@@ -123,9 +123,9 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ productId, on
                     <p className="text-lg text-gray-500 mb-4">{product.category}</p>
                     <p className="text-4xl font-black text-accent mb-4">{price.toFixed(2)} <span className="text-xl font-normal text-gray-600">DH / kg</span></p>
                     
-                    <div className="flex space-x-6 text-lg text-gray-700 mb-6">
-                        <div className="flex items-center"><BoxIcon className="w-6 h-6 mr-2 text-primary"/><span>{t('stock')}: {product.stockQuantity} kg</span></div>
-                        <div className="flex items-center"><MapPinIcon className="w-6 h-6 mr-2 text-primary"/><span>{t('from')}: {product.productLocation}</span></div>
+                    <div className="flex space-x-6 rtl:space-x-reverse text-lg text-gray-700 mb-6">
+                        <div className="flex items-center"><BoxIcon className="w-6 h-6 me-2 text-primary"/><span>{t('stock')}: {product.stockQuantity} kg</span></div>
+                        <div className="flex items-center"><MapPinIcon className="w-6 h-6 me-2 text-primary"/><span>{t('from')}: {product.productLocation}</span></div>
                     </div>
 
                     <p className="text-gray-700 leading-relaxed mb-6">{product.description}</p>
@@ -134,9 +134,9 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ productId, on
                         <h3 className="font-bold text-xl text-primary mb-2">{t('farmerInfo')}</h3>
                         <p className="font-semibold">{farmerStore.storeName}</p>
                         <p>{farmerUser.fullName}</p>
-                        <div className="flex space-x-4 mt-2">
-                           <a href={`tel:${farmerUser.phone}`} className="flex items-center space-x-2 bg-white p-2 rounded-md hover:bg-gray-100 transition"><PhoneIcon className="w-5 h-5 text-blue-600"/><span>{t('call')}</span></a>
-                           <a href={farmerStore.whatsAppLink} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 bg-white p-2 rounded-md hover:bg-gray-100 transition"><WhatsAppIcon className="w-5 h-5 text-green-500"/><span>WhatsApp</span></a>
+                        <div className="flex space-x-4 rtl:space-x-reverse mt-2">
+                           <a href={`tel:${farmerUser.phone}`} className="flex items-center space-x-2 rtl:space-x-reverse bg-white p-2 rounded-md hover:bg-gray-100 transition"><PhoneIcon className="w-5 h-5 text-blue-600"/><span>{t('call')}</span></a>
+                           <a href={farmerStore.whatsAppLink} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 rtl:space-x-reverse bg-white p-2 rounded-md hover:bg-gray-100 transition"><WhatsAppIcon className="w-5 h-5 text-green-500"/><span>WhatsApp</span></a>
                         </div>
                     </div>
 

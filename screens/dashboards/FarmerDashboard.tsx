@@ -122,7 +122,7 @@ const FarmerDashboard: React.FC = () => {
                                             <h4 className="font-bold text-lg">{p.productName}</h4>
                                             <p>{t('stock')}: {p.stockQuantity} kg</p>
                                         </div>
-                                        <div className="flex space-x-2">
+                                        <div className="flex space-x-2 rtl:space-x-reverse">
                                             <Button variant="secondary" className="w-auto" onClick={() => {setSelectedProduct(p); setModal('edit')}} Icon={EditIcon} disabled={isExpired}></Button>
                                         </div>
                                     </div>
@@ -146,7 +146,7 @@ const FarmerDashboard: React.FC = () => {
                                         <p>{t('status')}: <span className="font-semibold">{o.orderStatus}</span></p>
                                     </div>
                                     {o.orderStatus === OrderStatus.PENDING && (
-                                        <div className="p-4 bg-gray-50 border-t flex space-x-2">
+                                        <div className="p-4 bg-gray-50 border-t flex space-x-2 rtl:space-x-reverse">
                                             <Button variant="accent" onClick={() => handleUpdateStatus(o.orderId, OrderStatus.CONFIRMED)} disabled={isExpired}>{t('confirm')}</Button>
                                             <Button variant="secondary" onClick={() => handleUpdateStatus(o.orderId, OrderStatus.CANCELLED)} disabled={isExpired}>{t('cancel')}</Button>
                                         </div>

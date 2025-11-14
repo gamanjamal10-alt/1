@@ -1,3 +1,4 @@
+
 import React, { ReactNode } from 'react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -9,7 +10,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const Button: React.FC<ButtonProps> = ({ children, variant = 'primary', className = '', Icon, ...props }) => {
-  const baseClasses = "flex items-center justify-center space-x-2 font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 w-full text-lg";
+  const baseClasses = "flex items-center justify-center space-x-2 rtl:space-x-reverse font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 w-full text-lg";
   
   const variantClasses = {
     primary: 'bg-primary text-white hover:bg-blue-900',

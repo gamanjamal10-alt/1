@@ -23,7 +23,7 @@ const SubscriptionCard: React.FC<{ plan: SubscriptionPlan, isCurrent: boolean, o
                 <ul className="space-y-2 mb-6">
                     {plan.features.map(feature => (
                         <li key={feature} className="flex items-center">
-                            <CheckCircleIcon className="w-5 h-5 text-accent mr-2" />
+                            <CheckCircleIcon className="w-5 h-5 text-accent me-2" />
                             <span>{t(feature as any)}</span>
                         </li>
                     ))}

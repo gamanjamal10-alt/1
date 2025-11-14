@@ -18,11 +18,11 @@ const ProductCard: React.FC<{ product: Product; onSelect: (productId: string) =>
                 <p className="text-gray-500 text-sm mb-2">{product.category}</p>
                 <p className="text-2xl font-black text-accent mb-2">{price} <span className="text-base font-normal text-gray-600">DH / kg</span></p>
                 <div className="flex items-center text-gray-600 text-sm mb-1">
-                    <BoxIcon className="w-4 h-4 mr-2"/>
+                    <BoxIcon className="w-4 h-4 me-2"/>
                     <span>Stock: {product.stockQuantity} kg</span>
                 </div>
                  <div className="flex items-center text-gray-600 text-sm">
-                    <MapPinIcon className="w-4 h-4 mr-2"/>
+                    <MapPinIcon className="w-4 h-4 me-2"/>
                     <span>{farmerStore?.storeName}, {product.productLocation}</span>
                 </div>
             </div>
@@ -63,9 +63,9 @@ const BuyerDashboard: React.FC<BuyerDashboardProps> = ({ role, onSelectProduct }
                         placeholder="Search for products..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full p-3 pl-10 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-primary"
+                        className="w-full p-3 ps-10 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-primary"
                     />
-                    <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <SearchIcon className="absolute start-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 </div>
                 <select 
                     value={categoryFilter}

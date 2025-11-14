@@ -11,15 +11,15 @@ const Header: React.FC = () => {
 
   return (
     <header className="bg-primary text-secondary p-4 shadow-md flex justify-between items-center">
-      <div className="flex items-center space-x-3">
+      <div className="flex items-center space-x-3 rtl:space-x-reverse">
         <AgricultureIcon className="h-10 w-10 text-accent" />
         <h1 className="text-xl md:text-2xl font-bold">{t('soukElFellah')}</h1>
       </div>
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-4 rtl:space-x-reverse">
         <LanguageSelector />
         {currentUser && (
-          <div className="flex items-center space-x-2 sm:space-x-4">
-            <div className="text-right hidden sm:block">
+          <div className="flex items-center space-x-2 sm:space-x-4 rtl:space-x-reverse">
+            <div className="text-end hidden sm:block">
               <p className="font-semibold">{currentUser.fullName}</p>
               {currentStore && <p className="text-xs text-gray-300">{currentStore.storeName}</p>}
             </div>
@@ -33,7 +33,7 @@ const Header: React.FC = () => {
             )}
             <button
               onClick={logout}
-              className="flex items-center space-x-2 bg-accent hover:bg-green-700 text-white font-bold py-2 px-3 rounded-lg transition duration-300"
+              className="flex items-center space-x-2 rtl:space-x-reverse bg-accent hover:bg-green-700 text-white font-bold py-2 px-3 rounded-lg transition duration-300"
               aria-label="Logout"
             >
               <LogoutIcon className="h-5 w-5" />

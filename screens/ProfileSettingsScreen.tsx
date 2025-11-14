@@ -42,7 +42,7 @@ const StoreSettingsScreen: React.FC<StoreSettingsScreenProps> = ({ setActiveView
       <h2 className="text-3xl font-bold text-primary mb-6">{t('storeSettings')}</h2>
       <Card className="max-w-3xl">
         <div className="p-6 space-y-4">
-          <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
+          <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 rtl:sm:space-x-reverse">
             <img src={currentStore.profilePhoto} alt={currentStore.storeName} className="w-24 h-24 rounded-full object-cover"/>
             <div>
               {isEditing ? (
@@ -71,7 +71,7 @@ const StoreSettingsScreen: React.FC<StoreSettingsScreenProps> = ({ setActiveView
                </Button>
            </div>
         </div>
-        <div className="p-6 bg-gray-50 border-t flex space-x-2">
+        <div className="p-6 bg-gray-50 border-t flex space-x-2 rtl:space-x-reverse">
             {isEditing ? (
                 <>
                     <Button onClick={handleSave} className="w-auto">{t('saveChanges')}</Button>
