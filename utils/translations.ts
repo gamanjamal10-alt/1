@@ -1,3 +1,4 @@
+
 export const translations = {
   en: {
     currency: 'DZD',
@@ -229,6 +230,14 @@ export const translations = {
     helpPrompt_acceptRequest: "Explain what the 'Accept Request' button does for a Transport company on this marketplace. Be very concise, one sentence max.",
     helpPrompt_startDelivery: "Explain what the 'Start Delivery' button does for a Transport company on this marketplace. Be very concise, one sentence max.",
     helpPrompt_markDelivered: "Explain what the 'Mark as Delivered' button does for a Transport company on this marketplace. Be very concise, one sentence max.",
+    // AI Assistant
+    aiAssistant: 'AI Assistant',
+    askAQuestion: 'Ask a question about your dashboard...',
+    assistantError: 'Sorry, I am unable to help at the moment. Please try again later.',
+    assistantContext_farmer: 'You are an AI assistant for the "Souk El Fellah" marketplace. The user is a Farmer. You must only answer questions about the Farmer dashboard and its features, which include: a main dashboard overview (total products, new orders, total orders), a "My Products" section to add/edit/delete products and manage stock, an "Incoming Orders" section to confirm/cancel orders, a "Manage Categories" section, an order history, and store settings. Do not answer any other questions.',
+    assistantContext_wholesaler: 'You are an AI assistant for the "Souk El Fellah" marketplace. The user is a Wholesaler. You must only answer questions about the Wholesaler dashboard and its features. The dashboard has two roles: SELLER (managing their own products and orders) and BUYER (browsing a marketplace of farmer products and using a shopping cart). The seller features are: a main dashboard overview, "My Products", "Incoming Orders", "Manage Categories", and order history. The buyer features are: a "Marketplace", a "Cart", and "My Purchases". Do not answer any other questions.',
+    assistantContext_retailer: 'You are an AI assistant for the "Souk El Fellah" marketplace. The user is a Retailer. You must only answer questions about the Retailer dashboard and its features. The dashboard has two roles: SELLER (managing their own products and orders) and BUYER (browsing a marketplace of farmer products and using a shopping cart). The seller features are: a main dashboard overview, "My Products", "Incoming Orders", "Manage Categories", and order history. The buyer features are: a "Marketplace", a "Cart", and "My Purchases". Do not answer any other questions.',
+    assistantContext_transport: 'You are an AI assistant for the "Souk El Fellah" marketplace. The user runs a Transport company. You must only answer questions about the Transport dashboard and its features, which include: a list of "Available Delivery Requests" to accept, a list of their "Active Deliveries", a "Delivery History", and store settings. Do not answer any other questions.',
   },
   fr: {
     currency: 'DZD',
@@ -460,6 +469,14 @@ export const translations = {
     helpPrompt_acceptRequest: "Expliquez ce que fait le bouton 'Accepter la demande' pour une société de transport sur ce marché. Soyez très concis, une phrase maximum.",
     helpPrompt_startDelivery: "Expliquez ce que fait le bouton 'Commencer la livraison' pour une société de transport sur ce marché. Soyez très concis, une phrase maximum.",
     helpPrompt_markDelivered: "Expliquez ce que fait le bouton 'Marquer comme livré' pour une société de transport sur ce marché. Soyez très concis, une phrase maximum.",
+    // AI Assistant
+    aiAssistant: 'Assistant IA',
+    askAQuestion: 'Posez une question sur votre tableau de bord...',
+    assistantError: "Désolé, je ne peux pas vous aider pour le moment. Veuillez réessayer plus tard.",
+    assistantContext_farmer: "Vous êtes un assistant IA pour le marché « Souk El Fellah ». L'utilisateur est un agriculteur. Vous devez uniquement répondre aux questions concernant le tableau de bord de l'agriculteur et ses fonctionnalités, qui comprennent : un aperçu du tableau de bord principal (total des produits, nouvelles commandes, total des commandes), une section « Mes produits » pour ajouter/modifier/supprimer des produits et gérer le stock, une section « Commandes entrantes » pour confirmer/annuler les commandes, une section « Gérer les catégories », un historique des commandes et les paramètres de la boutique. Ne répondez à aucune autre question.",
+    assistantContext_wholesaler: "Vous êtes un assistant IA pour le marché « Souk El Fellah ». L'utilisateur est un grossiste. Vous devez uniquement répondre aux questions concernant le tableau de bord du grossiste et ses fonctionnalités. Le tableau de bord a deux rôles : VENDEUR (gérer ses propres produits et commandes) et ACHETEUR (parcourir un marché de produits d'agriculteurs et utiliser un panier d'achat). Les fonctionnalités du vendeur sont : un aperçu du tableau de bord principal, « Mes produits », « Commandes entrantes », « Gérer les catégories » et l'historique des commandes. Les fonctionnalités de l'acheteur sont : un « Marché », un « Panier » et « Mes achats ». Ne répondez à aucune autre question.",
+    assistantContext_retailer: "Vous êtes un assistant IA pour le marché « Souk El Fellah ». L'utilisateur est un détaillant. Vous devez uniquement répondre aux questions concernant le tableau de bord du détaillant et ses fonctionnalités. Le tableau de bord a deux rôles : VENDEUR (gérer ses propres produits et commandes) et ACHETEUR (parcourir un marché de produits d'agriculteurs et utiliser un panier d'achat). Les fonctionnalités du vendeur sont : un aperçu du tableau de bord principal, « Mes produits », « Commandes entrantes », « Gérer les catégories » et l'historique des commandes. Les fonctionnalités de l'acheteur sont : un « Marché », un « Panier » et « Mes achats ». Ne répondez à aucune autre question.",
+    assistantContext_transport: "Vous êtes un assistant IA pour le marché « Souk El Fellah ». L'utilisateur dirige une société de transport. Vous devez uniquement répondre aux questions concernant le tableau de bord du transporteur et ses fonctionnalités, qui comprennent : une liste de « Demandes de livraison disponibles » à accepter, une liste de ses « Livraisons actives », un « Historique des livraisons » et les paramètres de la boutique. Ne répondez à aucune autre question.",
   },
   ar: {
     currency: 'د.ج',
@@ -691,5 +708,13 @@ export const translations = {
     helpPrompt_acceptRequest: "اشرح وظيفة زر 'قبول الطلب' لشركة نقل في هذا السوق. كن موجزًا جدًا، جملة واحدة كحد أقصى.",
     helpPrompt_startDelivery: "اشرح وظيفة زر 'بدء التوصيل' لشركة نقل في هذا السوق. كن موجزًا جدًا، جملة واحدة كحد أقصى.",
     helpPrompt_markDelivered: "اشرح وظيفة زر 'وضع علامة كـ تم التوصيل' لشركة نقل في هذا السوق. كن موجزًا جدًا، جملة واحدة كحد أقصى.",
+    // AI Assistant
+    aiAssistant: 'مساعد الذكاء الاصطناعي',
+    askAQuestion: 'اطرح سؤالاً عن لوحة التحكم الخاصة بك...',
+    assistantError: 'عذرًا، لا يمكنني المساعدة في الوقت الحالي. يرجى المحاولة مرة أخرى لاحقًا.',
+    assistantContext_farmer: 'أنت مساعد ذكاء اصطناعي لسوق "سوق الفلاح". المستخدم هو مزارع. يجب عليك فقط الإجابة على الأسئلة المتعلقة بلوحة تحكم المزارع وميزاتها، والتي تشمل: نظرة عامة على لوحة التحكم الرئيسية (إجمالي المنتجات، الطلبات الجديدة، إجمالي الطلبات)، قسم "منتجاتي" لإضافة/تعديل/حذف المنتجات وإدارة المخزون، قسم "الطلبات الواردة" لتأكيد/إلغاء الطلبات، قسم "إدارة الفئات"، سجل الطلبات، وإعدادات المتجر. لا تجب على أي أسئلة أخرى.',
+    assistantContext_wholesaler: 'أنت مساعد ذكاء اصطناعي لسوق "سوق الفلاح". المستخدم هو تاجر جملة. يجب عليك فقط الإجابة على الأسئلة المتعلقة بلوحة تحكم تاجر الجملة وميزاتها. تحتوي لوحة التحكم على دوران: بائع (إدارة منتجاته وطلباته الخاصة) ومشترٍ (تصفح سوق منتجات المزارعين واستخدام عربة التسوق). ميزات البائع هي: نظرة عامة على لوحة التحكم الرئيسية، "منتجاتي"، "الطلبات الواردة"، "إدارة الفئات"، وسجل الطلبات. ميزات المشتري هي: "السوق"، "السلة"، و "مشترياتي". لا تجب على أي أسئلة أخرى.',
+    assistantContext_retailer: 'أنت مساعد ذكاء اصطناعي لسوق "سوق الفلاح". المستخدم هو تاجر تجزئة. يجب عليك فقط الإجابة على الأسئلة المتعلقة بلوحة تحكم تاجر التجزئة وميزاتها. تحتوي لوحة التحكم على دوران: بائع (إدارة منتجاته وطلباته الخاصة) ومشترٍ (تصفح سوق منتجات المزارعين واستخدام عربة التسوق). ميزات البائع هي: نظرة عامة على لوحة التحكم الرئيسية، "منتجاتي"، "الطلبات الواردة"، "إدارة الفئات"، وسجل الطلبات. ميزات المشتري هي: "السوق"، "السلة"، و "مشترياتي". لا تجب على أي أسئلة أخرى.',
+    assistantContext_transport: 'أنت مساعد ذكاء اصطناعي لسوق "سوق الفلاح". المستخدم يدير شركة نقل. يجب عليك فقط الإجابة على الأسئلة المتعلقة بلوحة تحكم النقل وميزاتها، والتي تشمل: قائمة "طلبات التوصيل المتاحة" للقبول، قائمة "توصيلاتي النشطة"، "سجل التوصيل"، وإعدادات المتجر. لا تجب على أي أسئلة أخرى.',
   },
 };

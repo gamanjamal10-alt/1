@@ -26,3 +26,4 @@ export { default as TagIcon } from './TagIcon';
 export { default as TrashIcon } from './TrashIcon';
 export { default as EyeIcon } from './EyeIcon';
 export { default as ShoppingCartIcon } from './ShoppingCartIcon';
+export { default as SparklesIcon } from './SparklesIcon';

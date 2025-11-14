@@ -64,6 +64,7 @@ interface AppContextType {
   placeOrders: (checkoutDetails: Omit<Order, 'orderId' | 'date' | 'orderStatus' | 'totalPrice' | 'productId' | 'buyerStoreId' | 'sellerStoreId' | 'orderType' | 'quantity' | 'notes'>) => Promise<void>;
   navigateToDashboardView: (view: string) => void;
   clearDashboardNavigation: () => void;
+  getAssistantResponse: (question: string) => Promise<string>;
 }
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -323,6 +324,37 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setHelpPosition(null);
   };
 
+   // AI Assistant Chat
+  const getAssistantResponse = async (question: string): Promise<string> => {
+     try {
+        if (!API_KEY) {
+            throw new Error("API_KEY is not set for Gemini API.");
+        }
+        if (!currentStore) {
+            throw new Error("No store selected.");
+        }
+        const ai = new GoogleGenAI({apiKey: API_KEY});
+        
+        const role = currentStore.storeType;
+        const contextKey = `assistantContext_${role.toLowerCase()}` as keyof typeof translations.en;
+        const systemInstruction = getTranslation(contextKey);
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: question,
+            config: {
+                systemInstruction,
+            }
+        });
+
+        return response.text;
+
+     } catch (error) {
+         console.error("Error getting assistant response:", error);
+         return getTranslation('assistantError');
+     }
+  };
+
   // Cart Functions
     const addToCart = (productId: string, quantity: number) => {
         const product = products.find(p => p.productId === productId);
@@ -444,6 +476,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     placeOrders,
     navigateToDashboardView,
     clearDashboardNavigation,
+    getAssistantResponse,
   };
 
   return (

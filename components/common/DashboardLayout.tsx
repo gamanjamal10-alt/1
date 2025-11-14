@@ -4,6 +4,7 @@ import { useAppContext } from '../../hooks/useAppContext';
 import { useTranslations } from '../../hooks/useTranslations';
 import { Subscription, SubscriptionStatus } from '../../types';
 import { mockApi } from '../../services/mockApi';
+import Assistant from './Assistant';
 
 interface NavItem {
   label: string;
@@ -78,11 +79,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ navItems, activeView,
           </button>
         ))}
       </aside>
-      <main className="flex-1 bg-gray-100">
+      <main className="flex-1 bg-gray-100 relative">
         <SubscriptionBanner setActiveView={setActiveView} />
         <div className="p-4 md:p-8">
             {children}
         </div>
+        <Assistant />
       </main>
     </div>
   );
