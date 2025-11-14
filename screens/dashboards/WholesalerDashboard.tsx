@@ -6,17 +6,17 @@ import { Product, Order, OrderStatus, SubscriptionStatus, Store, HelpTopic } fro
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
-import { PlusCircleIcon, EditIcon, BoxIcon, CartIcon, SettingsIcon, DashboardIcon, HistoryIcon, QuestionMarkCircleIcon, PhoneIcon, WhatsAppIcon } from '../../components/icons';
+import { PlusCircleIcon, EditIcon, BoxIcon, CartIcon, SettingsIcon, DashboardIcon, HistoryIcon, QuestionMarkCircleIcon, PhoneIcon, WhatsAppIcon, TagIcon } from '../../components/icons';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import ProfileSettingsScreen from '../ProfileSettingsScreen';
 import SubscriptionScreen from '../SubscriptionScreen';
 
-const ProductForm: React.FC<{ onClose: () => void; productToEdit?: Product | null }> = ({ onClose, productToEdit }) => {
+const ProductForm: React.FC<{ onClose: () => void; productToEdit?: Product | null; storeCategories: string[] }> = ({ onClose, productToEdit, storeCategories }) => {
     const { addProduct, updateProduct, currentStore } = useAppContext();
     const t = useTranslations();
     const [formData, setFormData] = useState({
         name: productToEdit?.productName || '',
-        category: productToEdit?.category || 'Vegetables',
+        category: productToEdit?.category || (storeCategories.length > 0 ? storeCategories[0] : ''),
         wsPrice: productToEdit?.wholesalePrice.toString() || '',
         rPrice: productToEdit?.retailPrice.toString() || '',
         minOrder: productToEdit?.minimumOrderQuantity.toString() || '',
@@ -56,7 +56,7 @@ const ProductForm: React.FC<{ onClose: () => void; productToEdit?: Product | nul
         <form onSubmit={handleSubmit} className="space-y-4">
             <input type="text" name="name" placeholder={t('productName')} value={formData.name} onChange={handleChange} className="w-full p-2 border rounded" required />
             <select name="category" value={formData.category} onChange={handleChange} className="w-full p-2 border rounded">
-                <option>Vegetables</option><option>Fruits</option><option>Grains</option><option>Dairy</option>
+                {storeCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
             </select>
             <input type="number" name="wsPrice" placeholder={t('wholesalePrice')} value={formData.wsPrice} onChange={handleChange} className="w-full p-2 border rounded" required />
             <input type="number" name="rPrice" placeholder={t('retailPrice')} value={formData.rPrice} onChange={handleChange} className="w-full p-2 border rounded" required />
@@ -111,6 +111,99 @@ const StockForm: React.FC<{ product: Product; onClose: () => void; }> = ({ produ
     );
 };
 
+const CategoryManagementView = () => {
+    const { currentStore, updateStore } = useAppContext();
+    const t = useTranslations();
+    const [newCategory, setNewCategory] = useState('');
+    const [editingCategory, setEditingCategory] = useState<{ old: string, new: string } | null>(null);
+
+    if (!currentStore) return null;
+
+    const handleAddCategory = async () => {
+        if (!newCategory.trim()) return;
+        if ((currentStore.categories || []).includes(newCategory.trim())) {
+            alert(t('categoryExistsError'));
+            return;
+        }
+        const updatedCategories = [...(currentStore.categories || []), newCategory.trim()];
+        await updateStore(currentStore.storeId, { categories: updatedCategories });
+        setNewCategory('');
+        alert(t('categoryAddedSuccess'));
+    };
+
+    const handleDeleteCategory = async (categoryToDelete: string) => {
+        if (window.confirm(t('deleteCategoryConfirm', { categoryName: categoryToDelete }))) {
+            const updatedCategories = (currentStore.categories || []).filter(c => c !== categoryToDelete);
+            await updateStore(currentStore.storeId, { categories: updatedCategories });
+            alert(t('categoryDeletedSuccess'));
+        }
+    };
+
+    const handleUpdateCategory = async () => {
+        if (!editingCategory || !editingCategory.new.trim()) return;
+        if (editingCategory.old !== editingCategory.new && (currentStore.categories || []).includes(editingCategory.new.trim())) {
+            alert(t('categoryExistsError'));
+            return;
+        }
+        const updatedCategories = (currentStore.categories || []).map(c => c === editingCategory.old ? editingCategory.new.trim() : c);
+        await updateStore(currentStore.storeId, { categories: updatedCategories });
+        setEditingCategory(null);
+        alert(t('categoryUpdatedSuccess'));
+    };
+
+    return (
+        <div>
+            <h3 className="text-2xl font-semibold text-primary mb-4">{t('manageCategories')}</h3>
+            <Card className="mb-6">
+                <div className="p-4">
+                    <h4 className="font-bold mb-2">{t('addCategory')}</h4>
+                    <div className="flex space-x-2">
+                        <input
+                            type="text"
+                            value={newCategory}
+                            onChange={(e) => setNewCategory(e.target.value)}
+                            placeholder={t('newCategoryName')}
+                            className="w-full p-2 border rounded"
+                        />
+                        <Button onClick={handleAddCategory}>{t('add')}</Button>
+                    </div>
+                </div>
+            </Card>
+            <div className="space-y-2">
+                {(currentStore.categories || []).map(cat => (
+                    <Card key={cat}>
+                        <div className="p-3 flex justify-between items-center">
+                            {editingCategory?.old === cat ? (
+                                <input
+                                    type="text"
+                                    value={editingCategory.new}
+                                    onChange={(e) => setEditingCategory({ ...editingCategory, new: e.target.value })}
+                                    className="w-full p-2 border rounded"
+                                />
+                            ) : (
+                                <span className="font-semibold">{cat}</span>
+                            )}
+                            <div className="flex space-x-2">
+                                {editingCategory?.old === cat ? (
+                                    <>
+                                        <Button onClick={handleUpdateCategory} variant="accent" className="!py-1 !px-3">{t('saveChanges')}</Button>
+                                        <Button onClick={() => setEditingCategory(null)} variant="secondary" className="!py-1 !px-3">{t('cancel')}</Button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Button onClick={() => setEditingCategory({ old: cat, new: cat })} variant="secondary" Icon={EditIcon} className="!py-1 !px-3"></Button>
+                                        <Button onClick={() => handleDeleteCategory(cat)} className="!bg-red-600 hover:!bg-red-800 !py-1 !px-3">{t('delete')}</Button>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </Card>
+                ))}
+            </div>
+        </div>
+    );
+};
+
 const WholesalerDashboard: React.FC = () => {
     const { currentStore, updateOrderStatus, products, orders, stores, showHelp } = useAppContext();
     const t = useTranslations();
@@ -132,6 +225,7 @@ const WholesalerDashboard: React.FC = () => {
         { label: 'dashboard', view: 'dashboard', icon: DashboardIcon },
         { label: 'myProducts', view: 'products', icon: BoxIcon },
         { label: 'myOrders', view: 'orders', icon: CartIcon },
+        { label: 'manageCategories', view: 'categories', icon: TagIcon },
         { label: 'orderHistory', view: 'history', icon: HistoryIcon },
         { label: 'storeSettings', view: 'settings', icon: SettingsIcon },
     ];
@@ -170,7 +264,7 @@ const WholesalerDashboard: React.FC = () => {
                                     <div className="p-4 flex flex-col sm:flex-row justify-between items-center">
                                         <div className="mb-4 sm:mb-0">
                                             <h4 className="font-bold text-lg">{p.productName}</h4>
-                                            <p>{t('stock')}: {p.stockQuantity} kg</p>
+                                            <p>{p.category} | {t('stock')}: {p.stockQuantity} kg</p>
                                         </div>
                                         <div className="flex flex-col sm:flex-row sm:space-x-2 rtl:sm:space-x-reverse space-y-2 sm:space-y-0 w-full sm:w-auto">
                                             <div className="flex items-center space-x-1">
@@ -235,6 +329,8 @@ const WholesalerDashboard: React.FC = () => {
                         </div>
                     </div>
                 );
+            case 'categories':
+                return <CategoryManagementView />;
             case 'history':
                 return (
                      <div>
@@ -260,16 +356,21 @@ const WholesalerDashboard: React.FC = () => {
                 return <SubscriptionScreen />;
             default: // dashboard
                 return (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <Card className="p-6">
                             <h3 className="text-xl font-bold text-primary mb-2">{t('products')}</h3>
                             <p className="text-5xl font-extrabold">{myProducts.length}</p>
                             <p className="text-gray-500">{t('totalProductsListed')}</p>
                         </Card>
                          <Card className="p-6">
-                            <h3 className="text-xl font-bold text-primary mb-2">{t('pendingOrders')}</h3>
+                            <h3 className="text-xl font-bold text-primary mb-2">{t('newOrders')}</h3>
                             <p className="text-5xl font-extrabold text-accent">{activeOrders.length}</p>
                             <p className="text-gray-500">{t('ordersRequiringAction')}</p>
+                        </Card>
+                        <Card className="p-6">
+                            <h3 className="text-xl font-bold text-primary mb-2">{t('totalOrders')}</h3>
+                            <p className="text-5xl font-extrabold">{incomingOrders.length}</p>
+                            <p className="text-gray-500">{t('totalOrdersReceived')}</p>
                         </Card>
                     </div>
                 );
@@ -281,7 +382,7 @@ const WholesalerDashboard: React.FC = () => {
             <h2 className="text-3xl font-bold text-primary mb-6">{t('wholesalerControlPanel')}</h2>
             {renderView()}
             <Modal isOpen={modal === 'add' || modal === 'edit'} onClose={() => setModal(null)} title={modal === 'edit' ? t('editProduct') : t('addNewProduct')}>
-                <ProductForm onClose={() => setModal(null)} productToEdit={selectedProduct} />
+                <ProductForm onClose={() => setModal(null)} productToEdit={selectedProduct} storeCategories={currentStore?.categories || []} />
             </Modal>
              {selectedProduct && (
                  <Modal isOpen={modal === 'stock'} onClose={() => setModal(null)} title={t('manageStock')}>

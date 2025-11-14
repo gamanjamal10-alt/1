@@ -95,6 +95,7 @@ export interface Store {
     locationGps: { lat: number; lng: number };
     profilePhoto: string;
     whatsAppLink: string;
+    categories?: string[];
     themeColors?: {
         primary: string;
         secondary: string;

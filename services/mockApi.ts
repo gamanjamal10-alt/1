@@ -58,6 +58,7 @@ let stores: Store[] = [
         locationGps: { lat: 36.2676, lng: 2.7539 },
         profilePhoto: 'https://picsum.photos/seed/farmer1/200',
         whatsAppLink: 'https://wa.me/213512345678',
+        categories: ['Vegetables', 'Fruits'],
         themeColors: { primary: '#004e92', secondary: '#f4e9d2', accent: '#6da34d' },
     },
     {
@@ -73,6 +74,7 @@ let stores: Store[] = [
         locationGps: { lat: 36.7762, lng: 3.0588 },
         profilePhoto: 'https://picsum.photos/seed/wholesaler1/200',
         whatsAppLink: 'https://wa.me/213623456789',
+        categories: ['Fruits', 'Imported Goods'],
         themeColors: { primary: '#004e92', secondary: '#f4e9d2', accent: '#6da34d' },
     },
     {
@@ -88,6 +90,7 @@ let stores: Store[] = [
         locationGps: { lat: 35.7051, lng: -0.6322 },
         profilePhoto: 'https://picsum.photos/seed/retailer1/200',
         whatsAppLink: 'https://wa.me/213634567890',
+        categories: ['Fresh Produce', 'Dairy', 'Bakery'],
         themeColors: { primary: '#004e92', secondary: '#f4e9d2', accent: '#6da34d' },
     },
     {
@@ -275,6 +278,7 @@ export const mockApi = {
           locationGps: { lat: 0, lng: 0 },
           profilePhoto: `https://picsum.photos/seed/store${Date.now()}/200`,
           whatsAppLink: `https://wa.me/${user.phone.replace(/\D/g, '')}`,
+          categories: ['General'],
           themeColors: {
             primary: '#004e92',
             secondary: '#f4e9d2',
