@@ -1,0 +1,18 @@
+
+export { default as AgricultureIcon } from './AgricultureIcon';
+export { default as BoxIcon } from './BoxIcon';
+export { default as CalendarIcon } from './CalendarIcon';
+export { default as CartIcon } from './CartIcon';
+export { default as ChevronLeftIcon } from './ChevronLeftIcon';
+export { default as HomeIcon } from './HomeIcon';
+export { default as LogoutIcon } from './LogoutIcon';
+export { default as MapPinIcon } from './MapPinIcon';
+export { default as PhoneIcon } from './PhoneIcon';
+export { default as PlusCircleIcon } from './PlusCircleIcon';
+export { default as SearchIcon } from './SearchIcon';
+export { default as TruckIcon } from './TruckIcon';
+export { default as UserGroupIcon } from './UserGroupIcon';
+export { default as WhatsAppIcon } from './WhatsAppIcon';
+export { default as CheckCircleIcon } from './CheckCircleIcon';
+export { default as XCircleIcon } from './XCircleIcon';
+export { default as ClockIcon } from './ClockIcon';
