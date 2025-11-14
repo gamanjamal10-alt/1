@@ -92,6 +92,7 @@ export const translations = {
     buyer: 'Buyer',
     status: 'Status',
     cancel: 'Cancel',
+    contact: 'Contact',
     // Buyer & Checkout
     retailProducts: 'Retail Products',
     myPurchases: 'My Purchases',
@@ -290,6 +291,7 @@ export const translations = {
     buyer: 'Acheteur',
     status: 'Statut',
     cancel: 'Annuler',
+    contact: 'Contact',
     // Buyer & Checkout
     retailProducts: 'Produits de détail',
     myPurchases: 'Mes Achats',
@@ -488,6 +490,7 @@ export const translations = {
     buyer: 'المشتري',
     status: 'الحالة',
     cancel: 'إلغاء',
+    contact: 'الاتصال',
     // Buyer & Checkout
     retailProducts: 'منتجات التجزئة',
     myPurchases: 'مشترياتي',

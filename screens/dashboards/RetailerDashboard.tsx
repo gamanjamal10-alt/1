@@ -6,7 +6,7 @@ import { Product, Order, OrderStatus, SubscriptionStatus, Store, HelpTopic } fro
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
-import { PlusCircleIcon, EditIcon, BoxIcon, CartIcon, SettingsIcon, DashboardIcon, HistoryIcon, QuestionMarkCircleIcon } from '../../components/icons';
+import { PlusCircleIcon, EditIcon, BoxIcon, CartIcon, SettingsIcon, DashboardIcon, HistoryIcon, QuestionMarkCircleIcon, PhoneIcon, WhatsAppIcon } from '../../components/icons';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import ProfileSettingsScreen from '../ProfileSettingsScreen';
 import SubscriptionScreen from '../SubscriptionScreen';
@@ -202,7 +202,19 @@ const RetailerDashboard: React.FC = () => {
                                         <h4 className="font-bold text-lg text-primary">{product?.productName}</h4>
                                         <p><span className="font-semibold">{t('buyer')}:</span> {buyerStore?.storeName} ({o.customerFullName})</p>
                                         <p><span className="font-semibold">{t('address')}:</span> {o.customerAddress}, {o.customerWilaya}</p>
-                                        <p><span className="font-semibold">{t('phone')}:</span> {o.customerPhone}</p>
+                                        <div>
+                                            <p className="font-semibold">{t('contact')}:</p>
+                                            <div className="flex items-center space-x-4 rtl:space-x-reverse mt-1">
+                                                <a href={`tel:${o.customerPhone}`} className="flex items-center space-x-1 rtl:space-x-reverse text-gray-800 hover:text-primary transition">
+                                                    <PhoneIcon className="w-5 h-5 text-blue-600" />
+                                                    <span>{o.customerPhone}</span>
+                                                </a>
+                                                <a href={`https://wa.me/${o.customerPhone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-1 rtl:space-x-reverse text-gray-800 hover:text-primary transition">
+                                                    <WhatsAppIcon className="w-5 h-5 text-green-500" />
+                                                    <span>WhatsApp</span>
+                                                </a>
+                                            </div>
+                                        </div>
                                         <p><span className="font-semibold">{t('paymentMethod')}:</span> {t(o.paymentMethod.replace(/\s/g, '').toLowerCase() as any)}</p>
                                         <p><span className="font-semibold">{t('status')}:</span> <span className="font-semibold">{o.orderStatus}</span></p>
                                     </div>
