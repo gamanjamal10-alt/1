@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAppContext } from '../hooks/useAppContext';
 import { Order, OrderStatus, ShippingRequest, ShippingStatus } from '../types';
@@ -30,13 +29,13 @@ const StatusIcon: React.FC<{ status: OrderStatus | ShippingStatus }> = ({ status
 
 
 const OrderItem: React.FC<{ order: Order }> = ({ order }) => {
-    const { products, userStores, createShippingRequest, refreshData } = useAppContext();
+    const { products, stores, createShippingRequest, refreshData } = useAppContext();
     const t = useTranslations();
     const [shippingRequest, setShippingRequest] = useState<ShippingRequest | undefined>(undefined);
 
     const product = products.find(p => p.productId === order.productId);
-    const sellerStore = userStores.find(s => s.storeId === order.sellerStoreId);
-    const buyerStore = userStores.find(s => s.storeId === order.buyerStoreId);
+    const sellerStore = stores.find(s => s.storeId === order.sellerStoreId);
+    const buyerStore = stores.find(s => s.storeId === order.buyerStoreId);
     
     useEffect(() => {
         mockApi.getShippingRequestByOrder(order.orderId).then(setShippingRequest);
@@ -66,7 +65,7 @@ const OrderItem: React.FC<{ order: Order }> = ({ order }) => {
                     </div>
                 </div>
                 <div className="flex justify-between items-center mt-2 text-gray-700">
-                    <p>{t('quantity')}: {order.quantity} kg | {t('total')}: {order.totalPrice} DH</p>
+                    <p>{t('quantity')}: {order.quantity} kg | {t('total')}: {order.totalPrice} {t('currency')}</p>
                     <div className="flex items-center text-sm">
                         <CalendarIcon className="w-4 h-4 me-1"/>
                         <span>{order.date}</span>
@@ -79,7 +78,7 @@ const OrderItem: React.FC<{ order: Order }> = ({ order }) => {
                              <div className="flex items-center space-x-2 rtl:space-x-reverse">
                                 <StatusIcon status={shippingRequest.status} />
                                 <span>{t('shipping')}: {shippingRequest.status}</span>
-                                {shippingRequest.deliveryPrice && <span className="font-bold">{shippingRequest.deliveryPrice} DH</span>}
+                                {shippingRequest.deliveryPrice && <span className="font-bold">{shippingRequest.deliveryPrice} {t('currency')}</span>}
                             </div>
                         ) : (
                             <Button variant="secondary" onClick={handleRequestShipping}>{t('sendDeliveryRequest')}</Button>
@@ -97,17 +96,15 @@ interface MyOrdersScreenProps {
 }
 
 const MyOrdersScreen: React.FC<MyOrdersScreenProps> = ({ orderFilter }) => {
-    const { currentStore, refreshData } = useAppContext();
+    const { currentStore, refreshData, orders } = useAppContext();
     const t = useTranslations();
-    const [myOrders, setMyOrders] = useState<Order[]>([]);
 
-    useEffect(() => {
-        if (currentStore) {
-            mockApi.getOrdersForBuyerStore(currentStore.storeId).then(orders => {
-                setMyOrders(orders.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
-            });
-        }
-    }, [currentStore, refreshData]);
+    const myOrders = useMemo(() => {
+        if (!currentStore) return [];
+        return orders
+            .filter(o => o.buyerStoreId === currentStore.storeId)
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    }, [currentStore, orders]);
 
     const filteredOrders = useMemo(() => {
         const activeStatuses = [OrderStatus.PENDING, OrderStatus.CONFIRMED];

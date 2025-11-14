@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAppContext } from '../hooks/useAppContext';
 import { Product, OrderType, User, OrderStatus, SubscriptionStatus } from '../types';
@@ -78,7 +77,7 @@ const OrderForm: React.FC<{product: Product, orderType: OrderType, onClose: () =
                 ></textarea>
             </div>
             <div className="text-2xl font-bold text-end">
-                {t('total')}: <span className="text-accent">{(quantity * price).toFixed(2)} DH</span>
+                {t('total')}: <span className="text-accent">{(quantity * price).toFixed(2)} {t('currency')}</span>
             </div>
             <Button onClick={handlePlaceOrder} disabled={isExpired}>{t('confirmOrder')}</Button>
         </div>
@@ -91,12 +90,12 @@ interface ProductDetailScreenProps {
 }
 
 const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ productId, onBack }) => {
-    const { products, userStores, currentStore, users } = useAppContext();
+    const { products, stores, currentStore, users } = useAppContext();
     const t = useTranslations();
     const [isOrderModalOpen, setOrderModalOpen] = useState(false);
     
     const product = products.find(p => p.productId === productId);
-    const farmerStore = product ? userStores.find(s => s.storeId === product.storeId) : null;
+    const farmerStore = product ? stores.find(s => s.storeId === product.storeId) : null;
     const farmerUser = farmerStore ? users.find(u => u.userId === farmerStore.userId) : null;
 
     if (!product || !farmerStore || !currentStore || !farmerUser) {
@@ -121,7 +120,7 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ productId, on
                 <div>
                     <h1 className="text-4xl font-extrabold text-primary mb-2">{product.productName}</h1>
                     <p className="text-lg text-gray-500 mb-4">{product.category}</p>
-                    <p className="text-4xl font-black text-accent mb-4">{price.toFixed(2)} <span className="text-xl font-normal text-gray-600">DH / kg</span></p>
+                    <p className="text-4xl font-black text-accent mb-4">{price.toFixed(2)} <span className="text-xl font-normal text-gray-600">{t('currency')} / kg</span></p>
                     
                     <div className="flex space-x-6 rtl:space-x-reverse text-lg text-gray-700 mb-6">
                         <div className="flex items-center"><BoxIcon className="w-6 h-6 me-2 text-primary"/><span>{t('stock')}: {product.stockQuantity} kg</span></div>

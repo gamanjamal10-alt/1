@@ -1,6 +1,6 @@
-
 export const translations = {
   en: {
+    currency: 'DZD',
     soukElFellah: 'Souk El Fellah – Farmers Marketplace',
     // Login & Register
     loginTitle: 'Welcome Back! Please login to your account.',
@@ -81,8 +81,8 @@ export const translations = {
     addNewProduct: 'Add New Product',
     updateProduct: 'Update Product',
     productName: 'Product Name',
-    wholesalePrice: 'Wholesale Price (DH)',
-    retailPrice: 'Retail Price (DH)',
+    wholesalePrice: 'Wholesale Price ({{currency}})',
+    retailPrice: 'Retail Price ({{currency}})',
     minOrderQty: 'Min Order Qty (kg)',
     description: 'Description',
     updateStock: 'Update Stock',
@@ -117,7 +117,7 @@ export const translations = {
     noPastDeliveries: 'You have no past deliveries.',
     availableDeliveryRequests: 'Available Delivery Requests',
     noAvailableDeliveryRequests: 'No available delivery requests.',
-    enterDeliveryPricePrompt: 'Please enter your delivery price (DH):',
+    enterDeliveryPricePrompt: 'Please enter your delivery price ({{currency}}):',
     deliveryRequestAccepted: 'Delivery request accepted!',
     invalidPrice: 'Invalid price.',
     deliveryStatusUpdated: 'Delivery status updated to',
@@ -169,6 +169,7 @@ export const translations = {
     typeToConfirm: 'Type to confirm',
   },
   fr: {
+    currency: 'DZD',
     soukElFellah: 'Souk El Fellah – Marché des Agriculteurs',
     // Login & Register
     loginTitle: 'Content de vous revoir ! Veuillez vous connecter à votre compte.',
@@ -249,8 +250,8 @@ export const translations = {
     addNewProduct: 'Ajouter un nouveau produit',
     updateProduct: 'Mettre à jour le produit',
     productName: 'Nom du produit',
-    wholesalePrice: 'Prix de gros (DH)',
-    retailPrice: 'Prix de détail (DH)',
+    wholesalePrice: 'Prix de gros ({{currency}})',
+    retailPrice: 'Prix de détail ({{currency}})',
     minOrderQty: 'Qté de commande min (kg)',
     description: 'Description',
     updateStock: 'Mettre à jour le stock',
@@ -285,7 +286,7 @@ export const translations = {
     noPastDeliveries: 'Vous n\'avez aucune livraison passée.',
     availableDeliveryRequests: 'Demandes de livraison disponibles',
     noAvailableDeliveryRequests: 'Aucune demande de livraison disponible.',
-    enterDeliveryPricePrompt: 'Veuillez entrer votre prix de livraison (DH) :',
+    enterDeliveryPricePrompt: 'Veuillez entrer votre prix de livraison ({{currency}}) :',
     deliveryRequestAccepted: 'Demande de livraison acceptée !',
     invalidPrice: 'Prix invalide.',
     deliveryStatusUpdated: 'Statut de livraison mis à jour à',
@@ -337,6 +338,7 @@ export const translations = {
     typeToConfirm: 'Taper pour confirmer',
   },
   ar: {
+    currency: 'د.ج',
     soukElFellah: 'سوق الفلاح – سوق المزارعين',
     // Login & Register
     loginTitle: 'مرحبًا بعودتك! يرجى تسجيل الدخول إلى حسابك.',
@@ -417,8 +419,8 @@ export const translations = {
     addNewProduct: 'إضافة منتج جديد',
     updateProduct: 'تحديث المنتج',
     productName: 'اسم المنتج',
-    wholesalePrice: 'سعر الجملة (د.ج.)',
-    retailPrice: 'سعر التجزئة (د.ج.)',
+    wholesalePrice: 'سعر الجملة ({{currency}})',
+    retailPrice: 'سعر التجزئة ({{currency}})',
     minOrderQty: 'أقل كمية للطلب (كجم)',
     description: 'الوصف',
     updateStock: 'تحديث المخزون',
@@ -453,7 +455,7 @@ export const translations = {
     noPastDeliveries: 'ليس لديك أي توصيلات سابقة.',
     availableDeliveryRequests: 'طلبات التوصيل المتاحة',
     noAvailableDeliveryRequests: 'لا توجد طلبات توصيل متاحة.',
-    enterDeliveryPricePrompt: 'يرجى إدخال سعر التوصيل (د.ج.):',
+    enterDeliveryPricePrompt: 'يرجى إدخال سعر التوصيل ({{currency}}):',
     deliveryRequestAccepted: 'تم قبول طلب التوصيل!',
     invalidPrice: 'سعر غير صالح.',
     deliveryStatusUpdated: 'تم تحديث حالة التوصيل إلى',

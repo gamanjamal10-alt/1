@@ -1,13 +1,14 @@
-
 import React, { useState, useMemo } from 'react';
 import { useAppContext } from '../../hooks/useAppContext';
 import { Product, UserRole, OrderType } from '../../types';
 import Card from '../../components/common/Card';
 import { SearchIcon, MapPinIcon, BoxIcon } from '../../components/icons';
+import { useTranslations } from '../../hooks/useTranslations';
 
 const ProductCard: React.FC<{ product: Product; onSelect: (productId: string) => void, orderType: OrderType }> = ({ product, onSelect, orderType }) => {
-    const { userStores } = useAppContext();
-    const farmerStore = userStores.find(s => s.storeId === product.storeId);
+    const { stores } = useAppContext();
+    const t = useTranslations();
+    const farmerStore = stores.find(s => s.storeId === product.storeId);
     const price = orderType === OrderType.WHOLESALE ? product.wholesalePrice : product.retailPrice;
 
     return (
@@ -16,7 +17,7 @@ const ProductCard: React.FC<{ product: Product; onSelect: (productId: string) =>
             <div className="p-4">
                 <h3 className="text-xl font-bold text-primary">{product.productName}</h3>
                 <p className="text-gray-500 text-sm mb-2">{product.category}</p>
-                <p className="text-2xl font-black text-accent mb-2">{price} <span className="text-base font-normal text-gray-600">DH / kg</span></p>
+                <p className="text-2xl font-black text-accent mb-2">{price} <span className="text-base font-normal text-gray-600">{t('currency')} / kg</span></p>
                 <div className="flex items-center text-gray-600 text-sm mb-1">
                     <BoxIcon className="w-4 h-4 me-2"/>
                     <span>Stock: {product.stockQuantity} kg</span>
@@ -37,11 +38,14 @@ interface BuyerDashboardProps {
 
 const BuyerDashboard: React.FC<BuyerDashboardProps> = ({ role, onSelectProduct }) => {
     const { products } = useAppContext();
+    const t = useTranslations();
     const [searchTerm, setSearchTerm] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('All');
 
     const orderType = role === UserRole.WHOLESALER ? OrderType.WHOLESALE : OrderType.RETAIL;
-    const title = `${role} Dashboard`;
+    const titleKey = role === UserRole.WHOLESALER ? 'wholesalerDashboard' : 'retailerControlPanel';
+    const title = t(titleKey);
+
 
     const filteredProducts = useMemo(() => {
         return products.filter(product => {

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAppContext } from '../../hooks/useAppContext';
 import { useTranslations } from '../../hooks/useTranslations';
@@ -21,7 +20,7 @@ const ShippingRequestCard: React.FC<{ request: ShippingRequest, isHistory?: bool
              alert(t('subscriptionExpiredError'));
             return;
         }
-        const priceStr = prompt(t('enterDeliveryPricePrompt'));
+        const priceStr = prompt(t('enterDeliveryPricePrompt', { currency: t('currency')}));
         const price = parseFloat(priceStr || '0');
         if (price > 0 && currentStore) {
             updateShippingRequest(request.requestId, ShippingStatus.ACCEPTED, currentStore.storeId, price);
@@ -57,7 +56,7 @@ const ShippingRequestCard: React.FC<{ request: ShippingRequest, isHistory?: bool
                      <div className="flex items-start"><MapPinIcon className="w-5 h-5 me-2 mt-1 text-accent" /><div><span className="font-semibold">{t('from')}:</span> {request.pickupAddress}</div></div>
                      <div className="flex items-start"><MapPinIcon className="w-5 h-5 me-2 mt-1 text-red-500" /><div><span className="font-semibold">{t('to')}:</span> {request.deliveryAddress}</div></div>
                 </div>
-                {request.deliveryPrice && <p>{t('price')}: <span className="font-bold text-lg">{request.deliveryPrice} DH</span></p>}
+                {request.deliveryPrice && <p>{t('price')}: <span className="font-bold text-lg">{request.deliveryPrice} {t('currency')}</span></p>}
             </div>
             {!isHistory && (
                  <div className="p-4 bg-gray-50 border-t">

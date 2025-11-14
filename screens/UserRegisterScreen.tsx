@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAppContext } from '../hooks/useAppContext';
 import { useTranslations } from '../hooks/useTranslations';
@@ -63,15 +62,9 @@ const UserRegisterScreen: React.FC<UserRegisterScreenProps> = ({ onRegisterSucce
                 <input name="fullName" placeholder={t('fullName')} value={formData.fullName} onChange={handleChange} required className="p-2 border rounded" />
                 <input type="email" name="email" placeholder={t('email')} value={formData.email} onChange={handleChange} required className="p-2 border rounded" />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input name="phone" placeholder={t('phone')} value={formData.phone} onChange={handleChange} required className="p-2 border rounded" />
-                <select name="country" value={formData.country} onChange={handleChange} className="p-2 border rounded">
-                    <option>Algeria</option>
-                    <option>Morocco</option>
-                    <option>Tunisia</option>
-                    <option>Egypt</option>
-                </select>
-            </div>
+            
+            <input name="phone" placeholder={t('phone')} value={formData.phone} onChange={handleChange} required className="w-full p-2 border rounded" />
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input type="password" name="password" placeholder={t('password')} value={formData.password} onChange={handleChange} required className="p-2 border rounded" />
                 <input type="password"name="confirmPassword" placeholder={t('confirmPassword')} value={formData.confirmPassword} onChange={handleChange} required className="p-2 border rounded" />

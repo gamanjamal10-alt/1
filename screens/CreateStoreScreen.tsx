@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { UserRole } from '../types';
 import { useAppContext } from '../hooks/useAppContext';
@@ -12,12 +11,17 @@ interface CreateStoreScreenProps {
 }
 
 const CreateStoreScreen: React.FC<CreateStoreScreenProps> = ({ onStoreCreated }) => {
-  const { currentUser, createStore } = useAppContext();
+  const { currentUser, createStore, userStores } = useAppContext();
   const t = useTranslations();
+  
+  const availableStoreTypes = Object.values(UserRole).filter(role => {
+      return role !== UserRole.ADMIN && !userStores.some(store => store.storeType === role);
+  });
+
   const [formData, setFormData] = useState({
     storeName: '',
-    storeType: UserRole.FARMER,
-    country: currentUser?.country || 'Algeria',
+    storeType: availableStoreTypes[0] || UserRole.FARMER,
+    country: 'Algeria',
     wilaya: '',
   });
   const [error, setError] = useState('');
@@ -43,7 +47,7 @@ const CreateStoreScreen: React.FC<CreateStoreScreenProps> = ({ onStoreCreated })
           storeName: formData.storeName,
           storeType: formData.storeType,
           country: formData.country,
-          wilaya: formData.country === 'Algeria' ? formData.wilaya : undefined,
+          wilaya: formData.wilaya,
       });
       alert('Store created successfully!');
       onStoreCreated();
@@ -66,29 +70,19 @@ const CreateStoreScreen: React.FC<CreateStoreScreenProps> = ({ onStoreCreated })
             <input name="storeName" placeholder={t('storeName')} value={formData.storeName} onChange={handleChange} required className="w-full p-2 border rounded" />
             
             <select name="storeType" value={formData.storeType} onChange={handleChange} className="w-full p-2 border rounded">
-                <option value={UserRole.FARMER}>{t('farmerStore')}</option>
-                <option value={UserRole.WHOLESALER}>{t('wholesalerStore')}</option>
-                <option value={UserRole.RETAILER}>{t('retailerStore')}</option>
-                <option value={UserRole.TRANSPORT}>{t('transportStore')}</option>
+                {availableStoreTypes.map(type => (
+                    <option key={type} value={type}>{t(`${type.toLowerCase()}Store` as any)}</option>
+                ))}
             </select>
 
-            <select name="country" value={formData.country} onChange={handleChange} className="w-full p-2 border rounded">
-                <option>Algeria</option>
-                <option>Morocco</option>
-                <option>Tunisia</option>
-                <option>Egypt</option>
+            <select name="wilaya" value={formData.wilaya} onChange={handleChange} required className="w-full p-2 border rounded">
+                <option value="" disabled>{t('wilaya')}</option>
+                {algerianWilayas.map(w => <option key={w} value={w}>{w}</option>)}
             </select>
-
-            {formData.country === 'Algeria' && (
-                <select name="wilaya" value={formData.wilaya} onChange={handleChange} required className="w-full p-2 border rounded">
-                    <option value="" disabled>{t('wilaya')}</option>
-                    {algerianWilayas.map(w => <option key={w} value={w}>{w}</option>)}
-                </select>
-            )}
             
             {error && <p className="text-red-500 text-sm">{error}</p>}
             <div className="flex space-x-2 rtl:space-x-reverse pt-4">
-                <Button variant="secondary" onClick={onStoreCreated} className="w-1/2">{t('cancel')}</Button>
+                <Button variant="secondary" type="button" onClick={onStoreCreated} className="w-1/2">{t('cancel')}</Button>
                 <Button type="submit" disabled={isCreating} className="w-1/2">{isCreating ? '...' : t('createAStore')}</Button>
             </div>
           </form>

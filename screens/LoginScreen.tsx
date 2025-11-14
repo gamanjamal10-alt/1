@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAppContext } from '../hooks/useAppContext';
 import { useTranslations } from '../hooks/useTranslations';
@@ -12,8 +11,8 @@ interface LoginScreenProps {
 const LoginScreen: React.FC<LoginScreenProps> = ({ onGoToRegister }) => {
   const { login } = useAppContext();
   const t = useTranslations();
-  const [email, setEmail] = useState('ahmed.hassan@example.com');
-  const [password, setPassword] = useState('password123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
