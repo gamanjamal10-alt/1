@@ -1,3 +1,4 @@
+
 export const translations = {
   en: {
     soukElFellah: 'Souk El Fellah – Farmers Marketplace',
@@ -69,6 +70,7 @@ export const translations = {
     wholesalerControlPanel: 'Wholesaler Control Panel',
     retailerControlPanel: 'Retailer Control Panel',
     transportCompanyPanel: 'Transport Company Panel',
+    wholesalerDashboard: 'Wholesaler Dashboard',
     // Farmer
     products: 'Products',
     totalProductsListed: 'Total products listed',
@@ -222,6 +224,7 @@ export const translations = {
     wholesalerControlPanel: 'Panneau de Contrôle Grossiste',
     retailerControlPanel: 'Panneau de Contrôle Détaillant',
     transportCompanyPanel: 'Panneau de Contrôle Transporteur',
+    wholesalerDashboard: 'Tableau de bord Grossiste',
     // Farmer
     products: 'Produits',
     totalProductsListed: 'Total des produits listés',
@@ -375,6 +378,7 @@ export const translations = {
     wholesalerControlPanel: 'لوحة تحكم تاجر الجملة',
     retailerControlPanel: 'لوحة تحكم تاجر التجزئة',
     transportCompanyPanel: 'لوحة تحكم شركة النقل',
+    wholesalerDashboard: 'لوحة تحكم تاجر الجملة',
     // Farmer
     products: 'المنتجات',
     totalProductsListed: 'إجمالي المنتجات المدرجة',

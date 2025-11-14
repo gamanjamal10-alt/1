@@ -216,16 +216,19 @@ export const mockApi = {
         registrationDate: new Date().toISOString().split('T')[0],
         language: Language.EN,
     };
-    users.push(newUser);
+    users = [...users, newUser];
     return Promise.resolve(newUser);
   },
   updateUser: async (userId: string, updatedData: Partial<User>): Promise<User | undefined> => {
-    const userIndex = users.findIndex(u => u.userId === userId);
-    if (userIndex > -1) {
-      users[userIndex] = { ...users[userIndex], ...updatedData };
-      return Promise.resolve(users[userIndex]);
-    }
-    return Promise.resolve(undefined);
+    let updatedUser: User | undefined;
+    users = users.map(u => {
+      if (u.userId === userId) {
+        updatedUser = { ...u, ...updatedData };
+        return updatedUser;
+      }
+      return u;
+    });
+    return Promise.resolve(updatedUser);
   },
   
   // STORE
@@ -244,8 +247,8 @@ export const mockApi = {
           profilePhoto: `https://picsum.photos/seed/store${Date.now()}/200`,
           whatsAppLink: `https://wa.me/${user.phone.replace(/\D/g, '')}`,
       };
-      stores.push(newStore);
-      // Create a free trial subscription for the new store
+      stores = [...stores, newStore];
+      
       const newSubscription: Subscription = {
           subscriptionId: `sub${Date.now()}`,
           storeId: newStore.storeId,
@@ -254,7 +257,7 @@ export const mockApi = {
           endDate: addDays(new Date(newStore.createdAt), 30).toISOString().split('T')[0],
           status: SubscriptionStatus.ACTIVE,
       };
-      subscriptions.push(newSubscription);
+      subscriptions = [...subscriptions, newSubscription];
       return Promise.resolve(newStore);
   },
 
@@ -268,16 +271,19 @@ export const mockApi = {
       productId: `prod${Date.now()}`,
       dateAdded: new Date().toISOString().split('T')[0],
     };
-    products.push(newProduct);
+    products = [...products, newProduct];
     return Promise.resolve(newProduct);
   },
    updateProduct: async (productId: string, updatedData: Partial<Product>): Promise<Product | undefined> => {
-    const productIndex = products.findIndex(p => p.productId === productId);
-    if (productIndex > -1) {
-      products[productIndex] = { ...products[productIndex], ...updatedData };
-      return Promise.resolve(products[productIndex]);
-    }
-    return Promise.resolve(undefined);
+    let updatedProduct: Product | undefined;
+    products = products.map(p => {
+        if (p.productId === productId) {
+            updatedProduct = { ...p, ...updatedData };
+            return updatedProduct;
+        }
+        return p;
+    });
+    return Promise.resolve(updatedProduct);
   },
 
   // ORDER
@@ -296,21 +302,23 @@ export const mockApi = {
         orderStatus: OrderStatus.PENDING,
         totalPrice: price * orderData.quantity,
     };
-    orders.push(newOrder);
+    orders = [...orders, newOrder];
     return Promise.resolve(newOrder);
   },
   updateOrderStatus: async(orderId: string, status: OrderStatus): Promise<Order | undefined> => {
-    const order = orders.find(o => o.orderId === orderId);
-    if(order) {
-        order.orderStatus = status;
-        return Promise.resolve(order);
-    }
-    return Promise.resolve(undefined);
+    let updatedOrder: Order | undefined;
+    orders = orders.map(o => {
+        if (o.orderId === orderId) {
+            updatedOrder = { ...o, orderStatus: status };
+            return updatedOrder;
+        }
+        return o;
+    });
+    return Promise.resolve(updatedOrder);
   },
 
   // SHIPPING
   getShippingRequests: async (): Promise<ShippingRequest[]> => Promise.resolve(shippingRequests),
-  // FIX: Added missing getShippingRequestByOrder method.
   getShippingRequestByOrder: async (orderId: string): Promise<ShippingRequest | undefined> => Promise.resolve(shippingRequests.find(sr => sr.orderId === orderId)),
   getShippingRequestsForStore: async (storeId: string): Promise<ShippingRequest[]> => Promise.resolve(shippingRequests.filter(sr => sr.transportStoreId === storeId)),
   createShippingRequest: async (requestData: Omit<ShippingRequest, 'requestId' | 'date' | 'status' | 'deliveryPrice' | 'transportStoreId'>): Promise<ShippingRequest> => {
@@ -322,37 +330,53 @@ export const mockApi = {
       deliveryPrice: null,
       transportStoreId: null,
     };
-    shippingRequests.push(newRequest);
+    shippingRequests = [...shippingRequests, newRequest];
     return Promise.resolve(newRequest);
   },
   updateShippingRequest: async(requestId: string, status: ShippingStatus, transportStoreId?: string, price?: number): Promise<ShippingRequest | undefined> => {
-    const request = shippingRequests.find(r => r.requestId === requestId);
-    if(request) {
-        request.status = status;
-        if(transportStoreId) request.transportStoreId = transportStoreId;
-        if(price) request.deliveryPrice = price;
-        return Promise.resolve(request);
-    }
-    return Promise.resolve(undefined);
+    let updatedRequest: ShippingRequest | undefined;
+    shippingRequests = shippingRequests.map(r => {
+        if(r.requestId === requestId) {
+            updatedRequest = { ...r, status };
+            if (transportStoreId) updatedRequest.transportStoreId = transportStoreId;
+            if (price) updatedRequest.deliveryPrice = price;
+            return updatedRequest;
+        }
+        return r;
+    });
+    return Promise.resolve(updatedRequest);
   },
 
   // SUBSCRIPTION
   getSubscriptionPlans: async(): Promise<SubscriptionPlan[]> => Promise.resolve(subscriptionPlans),
   getSubscriptionByStoreId: async(storeId: string): Promise<Subscription | undefined> => Promise.resolve(subscriptions.find(s => s.storeId === storeId)),
   updateSubscription: async(storeId: string, planId: 'FREE_30' | 'PLAN_6M' | 'PLAN_12M'): Promise<Subscription | undefined> => {
-      let sub = subscriptions.find(s => s.storeId === storeId);
+      let updatedSub: Subscription | undefined;
       const plan = subscriptionPlans.find(p => p.planId === planId);
-      if(sub && plan) {
-          sub.planId = plan.planId;
-          sub.startDate = today.toISOString().split('T')[0];
-          sub.endDate = addDays(today, plan.durationDays).toISOString().split('T')[0];
-          sub.status = SubscriptionStatus.ACTIVE; // Mocking payment as instant
-          
-          const store = stores.find(s => s.storeId === storeId);
-          if (store) store.status = StoreStatus.ACTIVE;
+      if (!plan) return Promise.resolve(undefined);
 
-          return Promise.resolve(sub);
+      subscriptions = subscriptions.map(sub => {
+          if (sub.storeId === storeId) {
+              updatedSub = {
+                  ...sub,
+                  planId: plan.planId,
+                  startDate: today.toISOString().split('T')[0],
+                  endDate: addDays(today, plan.durationDays).toISOString().split('T')[0],
+                  status: SubscriptionStatus.ACTIVE,
+              };
+              return updatedSub;
+          }
+          return sub;
+      });
+
+      if (updatedSub) {
+          stores = stores.map(s => {
+              if (s.storeId === storeId) {
+                  return { ...s, status: StoreStatus.ACTIVE };
+              }
+              return s;
+          });
       }
-      return Promise.resolve(undefined);
+      return Promise.resolve(updatedSub);
   }
 };

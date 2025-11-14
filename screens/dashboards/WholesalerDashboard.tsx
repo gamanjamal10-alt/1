@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAppContext } from '../../hooks/useAppContext';
 import { useTranslations } from '../../hooks/useTranslations';
-import { Product, Order, OrderStatus, SubscriptionStatus } from '../../types';
+import { Product, Order, OrderStatus, SubscriptionStatus, Store } from '../../types';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
 import { PlusCircleIcon, EditIcon, BoxIcon, CartIcon, SettingsIcon, DashboardIcon, HistoryIcon } from '../../components/icons';
-import { mockApi } from '../../services/mockApi';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import ProfileSettingsScreen from '../ProfileSettingsScreen';
 import SubscriptionScreen from '../SubscriptionScreen';
@@ -67,23 +67,66 @@ const ProductForm: React.FC<{ onClose: () => void; productToEdit?: Product | nul
     );
 };
 
+const StockForm: React.FC<{ product: Product; onClose: () => void; }> = ({ product, onClose }) => {
+    const { updateProduct } = useAppContext();
+    const t = useTranslations();
+    const [newStock, setNewStock] = useState(product.stockQuantity.toString());
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const stockValue = parseInt(newStock, 10);
+        if (isNaN(stockValue) || stockValue < 0) {
+            alert(t('invalidQuantity'));
+            return;
+        }
+
+        if (window.confirm(t('confirmStockUpdate', { productName: product.productName, quantity: stockValue.toString() }))) {
+            await updateProduct(product.productId, { stockQuantity: stockValue });
+            onClose();
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+                <h4 className="font-bold text-lg text-primary">{product.productName}</h4>
+                <p className="text-gray-600">{t('currentStock')}: {product.stockQuantity} kg</p>
+            </div>
+             <div>
+                <label htmlFor="stock" className="block font-semibold mb-1 text-gray-700">{t('newStockQuantity')} (kg)</label>
+                <input 
+                    type="number"
+                    id="stock"
+                    value={newStock} 
+                    onChange={(e) => setNewStock(e.target.value)} 
+                    className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" 
+                    required 
+                    min="0"
+                    aria-describedby="stock-description"
+                />
+                 <p id="stock-description" className="text-sm text-gray-500 mt-1">Enter the total new stock quantity.</p>
+            </div>
+            <Button type="submit">{t('updateStock')}</Button>
+        </form>
+    );
+};
+
 const WholesalerDashboard: React.FC = () => {
-    const { currentStore, updateOrderStatus, refreshData, products, orders: allOrders, userStores } = useAppContext();
+    const { currentStore, updateOrderStatus, products, orders, stores } = useAppContext();
     const t = useTranslations();
     const [activeView, setActiveView] = useState('dashboard');
-    const [myProducts, setMyProducts] = useState<Product[]>([]);
-    const [incomingOrders, setIncomingOrders] = useState<Order[]>([]);
-    const [modal, setModal] = useState<'add' | 'edit' | null>(null);
+    const [modal, setModal] = useState<'add' | 'edit' | 'stock' | null>(null);
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
     const isExpired = currentStore?.subscriptionStatus === SubscriptionStatus.EXPIRED;
 
-    useEffect(() => {
-        if (currentStore) {
-            mockApi.getProductsByStore(currentStore.storeId).then(setMyProducts);
-            mockApi.getOrdersForSellerStore(currentStore.storeId).then(setIncomingOrders);
-        }
-    }, [currentStore, refreshData]);
+    const myProducts = useMemo(() => 
+        products.filter(p => p.storeId === currentStore?.storeId),
+    [products, currentStore]);
+
+    const incomingOrders = useMemo(() =>
+        orders.filter(o => o.sellerStoreId === currentStore?.storeId),
+    [orders, currentStore]);
 
     const navItems = [
         { label: 'dashboard', view: 'dashboard', icon: DashboardIcon },
@@ -94,6 +137,7 @@ const WholesalerDashboard: React.FC = () => {
     ];
     
     const activeOrders = incomingOrders.filter(o => o.orderStatus === OrderStatus.PENDING || o.orderStatus === OrderStatus.CONFIRMED);
+    const orderHistory = incomingOrders.filter(o => o.orderStatus === OrderStatus.COMPLETED || o.orderStatus === OrderStatus.CANCELLED);
 
     const handleUpdateStatus = async (orderId: string, status: OrderStatus) => {
         if (isExpired) {
@@ -102,6 +146,10 @@ const WholesalerDashboard: React.FC = () => {
         }
         await updateOrderStatus(orderId, status);
         alert(`Order ${status.toLowerCase()}!`);
+    }
+
+    const getBuyerStore = (buyerStoreId: string): Store | undefined => {
+        return stores.find(s => s.storeId === buyerStoreId);
     }
     
     const renderView = () => {
@@ -116,13 +164,14 @@ const WholesalerDashboard: React.FC = () => {
                         <div className="space-y-4">
                             {myProducts.map(p => (
                                 <Card key={p.productId}>
-                                    <div className="p-4 flex justify-between items-center">
-                                        <div>
+                                    <div className="p-4 flex flex-col sm:flex-row justify-between items-center">
+                                        <div className="mb-4 sm:mb-0">
                                             <h4 className="font-bold text-lg">{p.productName}</h4>
                                             <p>{t('stock')}: {p.stockQuantity} kg</p>
                                         </div>
-                                        <div className="flex space-x-2 rtl:space-x-reverse">
-                                            <Button variant="secondary" className="w-auto" onClick={() => {setSelectedProduct(p); setModal('edit')}} Icon={EditIcon} disabled={isExpired}></Button>
+                                        <div className="flex flex-col sm:flex-row sm:space-x-2 rtl:sm:space-x-reverse space-y-2 sm:space-y-0 w-full sm:w-auto">
+                                            <Button variant="secondary" className="w-full sm:w-auto text-sm !py-2" onClick={() => { setSelectedProduct(p); setModal('stock') }} Icon={BoxIcon} disabled={isExpired}>{t('manageStock')}</Button>
+                                            <Button variant="secondary" className="w-full sm:w-auto text-sm !py-2" onClick={() => {setSelectedProduct(p); setModal('edit')}} Icon={EditIcon} disabled={isExpired}>{t('edit')}</Button>
                                         </div>
                                     </div>
                                 </Card>
@@ -136,7 +185,7 @@ const WholesalerDashboard: React.FC = () => {
                         <h3 className="text-2xl font-semibold text-primary mb-4">{t('incomingOrders')}</h3>
                          <div className="space-y-4">
                             {activeOrders.map(o => {
-                                const buyerStore = userStores.find(s => s.storeId === o.buyerStoreId);
+                                const buyerStore = getBuyerStore(o.buyerStoreId);
                                 return (
                                 <Card key={o.orderId}>
                                     <div className="p-4">
@@ -156,13 +205,12 @@ const WholesalerDashboard: React.FC = () => {
                     </div>
                 );
             case 'history':
-                const orderHistory = incomingOrders.filter(o => o.orderStatus === OrderStatus.COMPLETED || o.orderStatus === OrderStatus.CANCELLED);
                 return (
                      <div>
                         <h3 className="text-2xl font-semibold text-primary mb-4">{t('orderHistory')}</h3>
                          <div className="space-y-4">
                             {orderHistory.map(o => {
-                                const buyerStore = userStores.find(s => s.storeId === o.buyerStoreId);
+                                const buyerStore = getBuyerStore(o.buyerStoreId);
                                 return (
                                 <Card key={o.orderId}>
                                     <div className="p-4">
@@ -204,6 +252,11 @@ const WholesalerDashboard: React.FC = () => {
             <Modal isOpen={modal === 'add' || modal === 'edit'} onClose={() => setModal(null)} title={modal === 'edit' ? t('editProduct') : t('addNewProduct')}>
                 <ProductForm onClose={() => setModal(null)} productToEdit={selectedProduct} />
             </Modal>
+             {selectedProduct && (
+                 <Modal isOpen={modal === 'stock'} onClose={() => setModal(null)} title={t('manageStock')}>
+                    <StockForm product={selectedProduct} onClose={() => setModal(null)} />
+                </Modal>
+            )}
         </DashboardLayout>
     );
 };

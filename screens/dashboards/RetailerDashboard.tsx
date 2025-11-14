@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAppContext } from '../../hooks/useAppContext';
 import { useTranslations } from '../../hooks/useTranslations';
-import { Product, Order, OrderStatus, SubscriptionStatus } from '../../types';
+import { Product, Order, OrderStatus, SubscriptionStatus, Store } from '../../types';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
 import { PlusCircleIcon, EditIcon, BoxIcon, CartIcon, SettingsIcon, DashboardIcon, HistoryIcon } from '../../components/icons';
-import { mockApi } from '../../services/mockApi';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import ProfileSettingsScreen from '../ProfileSettingsScreen';
 import SubscriptionScreen from '../SubscriptionScreen';
@@ -112,22 +112,21 @@ const StockForm: React.FC<{ product: Product; onClose: () => void; }> = ({ produ
 };
 
 const RetailerDashboard: React.FC = () => {
-    const { currentStore, updateOrderStatus, refreshData, products, orders: allOrders, userStores } = useAppContext();
+    const { currentStore, updateOrderStatus, products, orders, stores } = useAppContext();
     const t = useTranslations();
     const [activeView, setActiveView] = useState('dashboard');
-    const [myProducts, setMyProducts] = useState<Product[]>([]);
-    const [incomingOrders, setIncomingOrders] = useState<Order[]>([]);
     const [modal, setModal] = useState<'add' | 'edit' | 'stock' | null>(null);
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
     const isExpired = currentStore?.subscriptionStatus === SubscriptionStatus.EXPIRED;
 
-    useEffect(() => {
-        if (currentStore) {
-            mockApi.getProductsByStore(currentStore.storeId).then(setMyProducts);
-            mockApi.getOrdersForSellerStore(currentStore.storeId).then(setIncomingOrders);
-        }
-    }, [currentStore, refreshData]);
+    const myProducts = useMemo(() => 
+        products.filter(p => p.storeId === currentStore?.storeId),
+    [products, currentStore]);
+
+    const incomingOrders = useMemo(() =>
+        orders.filter(o => o.sellerStoreId === currentStore?.storeId),
+    [orders, currentStore]);
 
     const navItems = [
         { label: 'dashboard', view: 'dashboard', icon: DashboardIcon },
@@ -138,6 +137,7 @@ const RetailerDashboard: React.FC = () => {
     ];
     
     const activeOrders = incomingOrders.filter(o => o.orderStatus === OrderStatus.PENDING || o.orderStatus === OrderStatus.CONFIRMED);
+    const orderHistory = incomingOrders.filter(o => o.orderStatus === OrderStatus.COMPLETED || o.orderStatus === OrderStatus.CANCELLED);
 
     const handleUpdateStatus = async (orderId: string, status: OrderStatus) => {
         if (isExpired) {
@@ -148,6 +148,10 @@ const RetailerDashboard: React.FC = () => {
         alert(`Order ${status.toLowerCase()}!`);
     }
     
+    const getBuyerStore = (buyerStoreId: string): Store | undefined => {
+        return stores.find(s => s.storeId === buyerStoreId);
+    }
+
     const renderView = () => {
         switch (activeView) {
             case 'products':
@@ -181,7 +185,7 @@ const RetailerDashboard: React.FC = () => {
                         <h3 className="text-2xl font-semibold text-primary mb-4">{t('incomingOrders')}</h3>
                          <div className="space-y-4">
                             {activeOrders.map(o => {
-                                const buyerStore = userStores.find(s => s.storeId === o.buyerStoreId);
+                                const buyerStore = getBuyerStore(o.buyerStoreId);
                                 return (
                                 <Card key={o.orderId}>
                                     <div className="p-4">
@@ -201,13 +205,12 @@ const RetailerDashboard: React.FC = () => {
                     </div>
                 );
             case 'history':
-                const orderHistory = incomingOrders.filter(o => o.orderStatus === OrderStatus.COMPLETED || o.orderStatus === OrderStatus.CANCELLED);
                 return (
                      <div>
                         <h3 className="text-2xl font-semibold text-primary mb-4">{t('orderHistory')}</h3>
                          <div className="space-y-4">
                             {orderHistory.map(o => {
-                                const buyerStore = userStores.find(s => s.storeId === o.buyerStoreId);
+                                const buyerStore = getBuyerStore(o.buyerStoreId);
                                 return (
                                 <Card key={o.orderId}>
                                     <div className="p-4">
